@@ -1,4 +1,4 @@
-enum Piece {
+pub enum Piece {
     Pawn,
     Rook,
     Knight,
