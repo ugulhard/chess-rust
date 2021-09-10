@@ -1,8 +1,14 @@
 use super::color::Color;
 use super::piece::Piece;
 
+#[derive(Debug, Clone)]
 pub struct Tile {
     color: Color,
-    piece: Piece,
-    coordinate: (u32, u32)
+    piece: Piece
+}
+
+impl Tile {
+    pub fn new(color: Color, piece: Piece) -> Tile{
+        Tile {color, piece}
+    }
 }
