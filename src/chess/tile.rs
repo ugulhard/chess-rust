@@ -1,7 +1,7 @@
 use super::color::Color;
 use super::piece::Piece;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Tile {
     color: Color,
     piece: Piece

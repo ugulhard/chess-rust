@@ -1,5 +1,5 @@
 use super::{color::Color, piece::Piece, tile::Tile};
-
+#[derive(Debug,)]
 pub struct Board {
     tiles: Vec<Vec<Tile>>,
 }
@@ -38,6 +38,11 @@ impl Board {
             }
         }
         Board {tiles}
+    }
+
+    pub fn makeMove(mut self, startX: usize, startY: usize, endX: usize, endY: usize) {
+        self.tiles[endX][endY] = self.tiles[startX][startY];
+        self.tiles[startX][startY] = Tile::new(Color::Empty, Piece::Empty);
     }
 
 }

@@ -1,6 +1,5 @@
-use super::tile::Tile;
 
 pub struct ChessMove {
-    start_tile: Tile,
-    end_tile: Tile,
+    start_pos: (u32, u32),
+    end_pos: (u32, u32),
 }
