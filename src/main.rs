@@ -1,6 +1,11 @@
 mod game;
 mod chess;
 
+use crate::game::game::Game;
+
+
 fn main() {
-    println!("Hello, world!");
+    let mut game = Game::new();
+    game.make_move(4, 1, 4, 3);
+    print!("{}", game);
 }
