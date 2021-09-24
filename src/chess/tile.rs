@@ -4,8 +4,8 @@ use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Tile {
-    color: Color,
-    piece: Piece
+    pub color: Color,
+    pub piece: Piece
 }
 
 fn get_black_piece_emoji(piece: Piece) -> &'static str {

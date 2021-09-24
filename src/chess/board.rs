@@ -4,6 +4,7 @@ use std::fmt;
 #[derive(Debug, Clone)]
 pub struct Board {
     tiles: Vec<Vec<Tile>>,
+    player_to_move: Color
 }
 
 fn get_piece_from_column(x: usize) -> Piece {
@@ -39,29 +40,35 @@ impl Board {
                 tiles[x].push(get_piece_for_starting_tile(x, y));
             }
         }
-        Board {tiles}
+        Board {tiles: tiles, player_to_move: Color::White}
     }
 
     pub fn make_move(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> Board {
         let mut new_board =self.clone();
+        new_board.player_to_move = Color::opposing_color(self.player_to_move);
         new_board.tiles[end_x][end_y] = self.tiles[start_x][start_y];
         new_board.tiles[start_x][start_y] = Tile::new(Color::Empty, Piece::Empty);
         new_board
     }
 
+    pub fn legal_move(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
+        return self.tiles[start_x][start_y].color == self.player_to_move
+    }
+
+    
 }
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut boardString = String::new();
+        let mut board_string = String::new();
         for y in 0..8 {
             let mut row_string = String::new();
             for x in 0..8 {
                 row_string += self.tiles[x][y].get_symbol_for_tile();
             }
-            boardString.insert_str(0, "\n");
-            boardString.insert_str(0, row_string.as_str());
+            board_string.insert_str(0, "\n");
+            board_string.insert_str(0, row_string.as_str());
         }
-        write!(f, "{}", boardString)
+        write!(f, "{}", board_string)
     }
 }
