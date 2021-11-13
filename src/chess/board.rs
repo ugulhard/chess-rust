@@ -61,7 +61,7 @@ impl Board {
         let tile = self.tiles[start_x][start_y];
         match tile.piece {
             Piece::Pawn => self.can_pawn_reach(start_x, start_y, end_x, end_y),
-            Piece::Rook => false,
+            Piece::Rook => self.can_rook_reach(start_x, start_y, end_x, end_y),
             Piece::Knight => false,
             Piece::Bishop => false,
             Piece::Queen => false,
@@ -103,6 +103,17 @@ impl Board {
         }
     }
 
+    fn can_rook_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
+        if start_x == end_x {
+            let end_index = if start_y < end_y {end_y - 1} else {end_y + 1};
+            return self.unobstructed_file(start_x, start_y, end_x, end_index) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+        } else if start_y == end_y {
+            let end_index = if start_x < end_x {end_x - 1} else {end_x + 1};
+            return  self.unobstructed_rank(start_x, start_y, end_index, end_y) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+        }
+        return false;
+    }
+
     fn unobstructed_file(&self, start_x: usize, start_y: usize, end_x: usize, end_y: usize) -> bool {
         if start_x != end_x {
             return false;
@@ -111,6 +122,17 @@ impl Board {
             return ((start_y + 1)..(end_y + 1)).all(|idx| self.tiles[start_x][idx].piece == Piece::Empty);
         } else {
             return (end_y..start_y).all(|idx| self.tiles[start_x][idx].piece == Piece::Empty);
+        }
+    }
+
+    fn unobstructed_rank(&self, start_x: usize, start_y: usize, end_x: usize, end_y: usize) -> bool {
+        if start_y != end_y {
+            return false;
+        }
+        if start_x < end_x {
+            return ((start_x + 1)..(end_x + 1)).all(|idx| self.tiles[idx][start_y].piece == Piece::Empty);
+        } else {
+            return (end_x..start_x).all(|idx| self.tiles[idx][start_y].piece == Piece::Empty);
         }
     }
 
@@ -269,6 +291,60 @@ fn unobstructed_file_start_with_piece_start_larger_than_end(){
 fn obstructed_file_start_with_piece_start_larger_than_end(){
     let board = Board::new();
     assert_eq!(false, board.unobstructed_file(4, 6, 4, 1));
+}
+
+#[test]
+fn rook_can_move(){
+    let mut board = Board::new();
+    board = board.make_move(0, 1, 0, 3);
+    board = board.make_move(0, 6, 0, 4);
+    assert_eq!(true, board.can_rook_reach(0, 0, 0, 2));
+}
+
+
+#[test]
+fn rook_is_obstructed(){
+    let board = Board::new();
+    assert_eq!(false, board.can_rook_reach(0, 0, 0, 2));
+    assert_eq!(false, board.can_rook_reach(0, 0, 0, 1));
+
+}
+
+#[test]
+fn rook_can_capture_file(){
+    let mut board = Board::new();
+    board = board.make_move(0, 1, 0, 3);
+    board = board.make_move(1, 6, 1, 4);
+    board = board.make_move(0, 3, 1, 4);
+    board = board.make_move(2, 6, 2, 4);
+    assert_eq!(true, board.can_rook_reach(0, 0, 0, 6));
+    board = board.make_move(0, 0, 0, 6);
+    assert_eq!(true, board.can_rook_reach(0, 7, 0, 6));
+}
+
+#[test]
+fn rook_can_capture_rank(){
+    let mut board = Board::new();
+    //Move out pawns
+    board = board.make_move(0, 1, 0, 3);
+    board = board.make_move(0, 6, 0, 4);
+    board = board.make_move(7, 1, 7, 3);
+    board = board.make_move(7, 6, 7, 4);
+    //Put rooks in middle of board to be ready to capture
+    board = board.make_move(0, 0, 0, 2);
+    board = board.make_move(0, 7, 0, 5);
+    board = board.make_move(0, 2, 2, 2);
+    board = board.make_move(0, 5, 1, 5);
+    board = board.make_move(2, 2, 2, 4);
+    board = board.make_move(1, 5, 1, 3);
+    //Check if white can capture
+    assert_eq!(true, board.can_rook_reach(2, 4, 0, 4));
+    assert_eq!(true, board.can_rook_reach(2, 4, 7, 4));
+    board = board.make_move(2, 4, 0, 4);
+    //Likewise for black
+    assert_eq!(true, board.can_rook_reach(1, 3, 0, 3));
+    assert_eq!(true, board.can_rook_reach(1, 3, 7, 3));
+
 }
 
 }
