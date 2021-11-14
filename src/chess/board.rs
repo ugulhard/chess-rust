@@ -58,12 +58,15 @@ impl Board {
     }
 
     fn piece_can_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
+        if start_x == end_x && start_y == end_y {
+            return false
+        }
         let tile = self.tiles[start_x][start_y];
         match tile.piece {
             Piece::Pawn => self.can_pawn_reach(start_x, start_y, end_x, end_y),
             Piece::Rook => self.can_rook_reach(start_x, start_y, end_x, end_y),
             Piece::Knight => false,
-            Piece::Bishop => false,
+            Piece::Bishop => self.can_bishop_reach(start_x, start_y, end_x, end_y),
             Piece::Queen => false,
             Piece::King => false,
             _ => false
@@ -114,6 +117,10 @@ impl Board {
         return false;
     }
 
+    fn can_bishop_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
+        return self.unobstructed_diagonal(start_x, start_y, end_x, end_y) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+    }
+
     fn unobstructed_file(&self, start_x: usize, start_y: usize, end_x: usize, end_y: usize) -> bool {
         if start_x != end_x {
             return false;
@@ -136,7 +143,27 @@ impl Board {
         }
     }
 
-    
+    fn unobstructed_diagonal(&self, start_x: usize, start_y: usize, end_x: usize, end_y: usize) -> bool {
+        let y_difference = end_y as i128 - start_y as i128;
+        let x_difference = end_x as i128 - start_x as i128;
+        if x_difference.abs() != y_difference.abs() || x_difference == 0 || y_difference == 0 {
+            return false;
+        }
+        let x_order = x_difference / x_difference.abs();
+        let y_order = y_difference / y_difference.abs();
+        //Add the direction we're going in so we don't check if the start square is empty
+        let mut x_idx = start_x as i128 + x_order;
+        let mut y_idx = start_y as i128 + y_order;
+        while x_idx != end_x as i128 && y_idx != end_y as i128 {
+            if self.tiles[x_idx as usize][y_idx as usize].piece != Piece::Empty {
+                return false;
+            }
+            x_idx += x_order;
+            y_idx += y_order;
+        }
+        return true;
+        
+    }
 }
 
 impl fmt::Display for Board {
@@ -344,7 +371,36 @@ fn rook_can_capture_rank(){
     //Likewise for black
     assert_eq!(true, board.can_rook_reach(1, 3, 0, 3));
     assert_eq!(true, board.can_rook_reach(1, 3, 7, 3));
+}
 
+#[test]
+fn bishop_can_travel_each_direction(){
+    let mut board = Board::new();
+    board = board.make_move(4, 1, 4, 3);
+    board = board.make_move(4, 6, 4, 4);
+    board = board.make_move(5, 0, 2, 3);
+    board = board.make_move(0, 6, 0, 4);
+    assert_eq!(true, board.can_bishop_reach(2, 3, 0, 5));
+    assert_eq!(true, board.can_bishop_reach(2, 3, 1, 4));
+    assert_eq!(true, board.can_bishop_reach(2, 3, 1, 2));
+    assert_eq!(true, board.can_bishop_reach(2, 3, 3, 4));
+    assert_eq!(true, board.can_bishop_reach(2, 3, 4, 5));
+}
+
+#[test]
+fn bishop_is_blocked_each_direction(){
+    let mut board = Board::new();
+    board = board.make_move(4, 1, 4, 3);
+    board = board.make_move(3, 6, 3, 4);
+    board = board.make_move(5, 0, 2, 3);
+    board = board.make_move(1, 6, 1, 4);
+    assert_eq!(false, board.can_bishop_reach(2, 3, 0, 1));
+    assert_eq!(false, board.can_bishop_reach(2, 3, 0, 5));
+    assert_eq!(false, board.can_bishop_reach(2, 3, 4, 5));
+    board = board.make_move(3, 1, 3, 2);
+    board = board.make_move(1, 4, 1, 3);
+    assert_eq!(false, board.can_bishop_reach(2, 3, 3, 2));
+    assert_eq!(false, board.can_bishop_reach(2, 3, 4, 1));
 }
 
 }
