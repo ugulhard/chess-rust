@@ -348,15 +348,15 @@ fn rook_can_move(){
     let mut board = Board::new();
     board = board.make_move(0, 1, 0, 3);
     board = board.make_move(0, 6, 0, 4);
-    assert_eq!(true, board.can_rook_reach(0, 0, 0, 2));
+    assert_eq!(true, board.legal_move(0, 0, 0, 2));
 }
 
 
 #[test]
 fn rook_is_obstructed(){
     let board = Board::new();
-    assert_eq!(false, board.can_rook_reach(0, 0, 0, 2));
-    assert_eq!(false, board.can_rook_reach(0, 0, 0, 1));
+    assert_eq!(false, board.legal_move(0, 0, 0, 2));
+    assert_eq!(false, board.legal_move(0, 0, 0, 1));
 
 }
 
@@ -367,9 +367,9 @@ fn rook_can_capture_file(){
     board = board.make_move(1, 6, 1, 4);
     board = board.make_move(0, 3, 1, 4);
     board = board.make_move(2, 6, 2, 4);
-    assert_eq!(true, board.can_rook_reach(0, 0, 0, 6));
+    assert_eq!(true, board.legal_move(0, 0, 0, 6));
     board = board.make_move(0, 0, 0, 6);
-    assert_eq!(true, board.can_rook_reach(0, 7, 0, 6));
+    assert_eq!(true, board.legal_move(0, 7, 0, 6));
 }
 
 #[test]
@@ -388,12 +388,12 @@ fn rook_can_capture_rank(){
     board = board.make_move(2, 2, 2, 4);
     board = board.make_move(1, 5, 1, 3);
     //Check if white can capture
-    assert_eq!(true, board.can_rook_reach(2, 4, 0, 4));
-    assert_eq!(true, board.can_rook_reach(2, 4, 7, 4));
+    assert_eq!(true, board.legal_move(2, 4, 0, 4));
+    assert_eq!(true, board.legal_move(2, 4, 7, 4));
     board = board.make_move(2, 4, 0, 4);
     //Likewise for black
-    assert_eq!(true, board.can_rook_reach(1, 3, 0, 3));
-    assert_eq!(true, board.can_rook_reach(1, 3, 7, 3));
+    assert_eq!(true, board.legal_move(1, 3, 0, 3));
+    assert_eq!(true, board.legal_move(1, 3, 7, 3));
 }
 
 #[test]
@@ -403,11 +403,11 @@ fn bishop_can_travel_each_direction(){
     board = board.make_move(4, 6, 4, 4);
     board = board.make_move(5, 0, 2, 3);
     board = board.make_move(0, 6, 0, 4);
-    assert_eq!(true, board.can_bishop_reach(2, 3, 0, 5));
-    assert_eq!(true, board.can_bishop_reach(2, 3, 1, 4));
-    assert_eq!(true, board.can_bishop_reach(2, 3, 1, 2));
-    assert_eq!(true, board.can_bishop_reach(2, 3, 3, 4));
-    assert_eq!(true, board.can_bishop_reach(2, 3, 4, 5));
+    assert_eq!(true, board.legal_move(2, 3, 0, 5));
+    assert_eq!(true, board.legal_move(2, 3, 1, 4));
+    assert_eq!(true, board.legal_move(2, 3, 1, 2));
+    assert_eq!(true, board.legal_move(2, 3, 3, 4));
+    assert_eq!(true, board.legal_move(2, 3, 4, 5));
 }
 
 #[test]
@@ -417,13 +417,13 @@ fn bishop_is_blocked_each_direction(){
     board = board.make_move(3, 6, 3, 4);
     board = board.make_move(5, 0, 2, 3);
     board = board.make_move(1, 6, 1, 4);
-    assert_eq!(false, board.can_bishop_reach(2, 3, 0, 1));
-    assert_eq!(false, board.can_bishop_reach(2, 3, 0, 5));
-    assert_eq!(false, board.can_bishop_reach(2, 3, 4, 5));
+    assert_eq!(false, board.legal_move(2, 3, 0, 1));
+    assert_eq!(false, board.legal_move(2, 3, 0, 5));
+    assert_eq!(false, board.legal_move(2, 3, 4, 5));
     board = board.make_move(3, 1, 3, 2);
     board = board.make_move(1, 4, 1, 3);
-    assert_eq!(false, board.can_bishop_reach(2, 3, 3, 2));
-    assert_eq!(false, board.can_bishop_reach(2, 3, 4, 1));
+    assert_eq!(false, board.legal_move(2, 3, 3, 2));
+    assert_eq!(false, board.legal_move(2, 3, 4, 1));
 }
 
 #[test]
@@ -433,65 +433,65 @@ fn knight_movements(){
     board = board.make_move(6, 7, 5, 5);
     board = board.make_move(5, 2, 6, 4);
     board = board.make_move(5, 5, 6, 3);
-    assert_eq!(true, board.can_knight_reach(6, 4, 4, 3));
-    assert_eq!(true, board.can_knight_reach(6, 4, 4, 5));
-    assert_eq!(true, board.can_knight_reach(6, 4, 5, 2));
-    assert_eq!(true, board.can_knight_reach(6, 4, 5, 6));
-    assert_eq!(true, board.can_knight_reach(6, 4, 7, 2));
-    assert_eq!(true, board.can_knight_reach(6, 4, 7, 6));
+    assert_eq!(true, board.legal_move(6, 4, 4, 3));
+    assert_eq!(true, board.legal_move(6, 4, 4, 5));
+    assert_eq!(true, board.legal_move(6, 4, 5, 2));
+    assert_eq!(true, board.legal_move(6, 4, 5, 6));
+    assert_eq!(true, board.legal_move(6, 4, 7, 2));
+    assert_eq!(true, board.legal_move(6, 4, 7, 6));
     board = board.make_move(6, 4, 5, 6);
-    assert_eq!(true, board.can_knight_reach(6, 3, 4, 2));
-    assert_eq!(true, board.can_knight_reach(6, 3, 4, 4));
-    assert_eq!(true, board.can_knight_reach(6, 3, 5, 1));
-    assert_eq!(true, board.can_knight_reach(6, 3, 5, 5));
-    assert_eq!(true, board.can_knight_reach(6, 3, 7, 1));
-    assert_eq!(true, board.can_knight_reach(6, 3, 7, 5));
+    assert_eq!(true, board.legal_move(6, 3, 4, 2));
+    assert_eq!(true, board.legal_move(6, 3, 4, 4));
+    assert_eq!(true, board.legal_move(6, 3, 5, 1));
+    assert_eq!(true, board.legal_move(6, 3, 5, 5));
+    assert_eq!(true, board.legal_move(6, 3, 7, 1));
+    assert_eq!(true, board.legal_move(6, 3, 7, 5));
 }
 
 #[test]
 fn queen_movement(){
     let mut board = Board::new();
-    assert_eq!(false, board.can_queen_reach(3, 0, 5, 2));
-    assert_eq!(false, board.can_queen_reach(3, 0, 3, 2));
-    assert_eq!(false, board.can_queen_reach(3, 0, 4, 0));
-    assert_eq!(false, board.can_queen_reach(3, 0, 3, 0));
-    assert_eq!(false, board.can_queen_reach(3, 0, 2, 0));
-    assert_eq!(false, board.can_queen_reach(3, 0, 1, 0));
+    assert_eq!(false, board.legal_move(3, 0, 5, 2));
+    assert_eq!(false, board.legal_move(3, 0, 3, 2));
+    assert_eq!(false, board.legal_move(3, 0, 4, 0));
+    assert_eq!(false, board.legal_move(3, 0, 3, 0));
+    assert_eq!(false, board.legal_move(3, 0, 2, 0));
+    assert_eq!(false, board.legal_move(3, 0, 1, 0));
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(4, 6, 4, 4);
     board = board.make_move(3, 0, 5, 2);
     board = board.make_move(0, 6, 0, 4);
-    assert_eq!(true, board.can_queen_reach(5, 2, 5, 6));
-    assert_eq!(true, board.can_queen_reach(5, 2, 5, 5));
-    assert_eq!(true, board.can_queen_reach(5, 2, 5, 3));
-    assert_eq!(true, board.can_queen_reach(5, 2, 0, 2));
-    assert_eq!(true, board.can_queen_reach(5, 2, 4, 2));
-    assert_eq!(true, board.can_queen_reach(5, 2, 6, 2));
-    assert_eq!(true, board.can_queen_reach(5, 2, 7, 2));
+    assert_eq!(true, board.legal_move(5, 2, 5, 6));
+    assert_eq!(true, board.legal_move(5, 2, 5, 5));
+    assert_eq!(true, board.legal_move(5, 2, 5, 3));
+    assert_eq!(true, board.legal_move(5, 2, 0, 2));
+    assert_eq!(true, board.legal_move(5, 2, 4, 2));
+    assert_eq!(true, board.legal_move(5, 2, 6, 2));
+    assert_eq!(true, board.legal_move(5, 2, 7, 2));
 }
 
 #[test]
 fn king_movement(){
     let mut board = Board::new();
-    assert_eq!(false, board.can_king_reach(4, 0, 4, 1));
-    assert_eq!(false, board.can_king_reach(4, 0, 3, 0));
+    assert_eq!(false, board.legal_move(4, 0, 4, 1));
+    assert_eq!(false, board.legal_move(4, 0, 3, 0));
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(4, 6, 4, 4);
-    assert_eq!(true, board.can_king_reach(4, 0, 4, 1));
+    assert_eq!(true, board.legal_move(4, 0, 4, 1));
     board = board.make_move(4, 0, 4, 1);
-    assert_eq!(true, board.can_king_reach(4, 7, 4, 6));
+    assert_eq!(true, board.legal_move(4, 7, 4, 6));
     board = board.make_move(4, 7, 4, 6);
-    assert_eq!(true, board.can_king_reach(4, 1, 4, 2));
-    assert_eq!(true, board.can_king_reach(4, 1, 5, 2));
-    assert_eq!(true, board.can_king_reach(4, 1, 3, 2));
+    assert_eq!(true, board.legal_move(4, 1, 4, 2));
+    assert_eq!(true, board.legal_move(4, 1, 5, 2));
+    assert_eq!(true, board.legal_move(4, 1, 3, 2));
     board = board.make_move(4, 1, 5, 2);
-    assert_eq!(true, board.can_king_reach(4, 6, 5, 5));
-    assert_eq!(true, board.can_king_reach(4, 6, 4, 5));
-    assert_eq!(true, board.can_king_reach(4, 6, 3, 5));
+    assert_eq!(true, board.legal_move(4, 6, 5, 5));
+    assert_eq!(true, board.legal_move(4, 6, 4, 5));
+    assert_eq!(true, board.legal_move(4, 6, 3, 5));
     board = board.make_move(4, 6, 3, 5);
     board = board.make_move(5, 2, 6, 3);
     board = board.make_move(3, 7, 6, 4);
-    assert_eq!(true, board.can_king_reach(6, 3, 6, 4));
+    assert_eq!(true, board.legal_move(6, 3, 6, 4));
 }
 
 }
