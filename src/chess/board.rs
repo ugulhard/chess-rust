@@ -1,5 +1,5 @@
 use super::{color::Color, piece::Piece, tile::Tile};
-use std::fmt;
+use std::{fmt};
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -65,10 +65,10 @@ impl Board {
         match tile.piece {
             Piece::Pawn => self.can_pawn_reach(start_x, start_y, end_x, end_y),
             Piece::Rook => self.can_rook_reach(start_x, start_y, end_x, end_y),
-            Piece::Knight => false,
+            Piece::Knight => self.can_knight_reach(start_x, start_y, end_x, end_y),
             Piece::Bishop => self.can_bishop_reach(start_x, start_y, end_x, end_y),
-            Piece::Queen => false,
-            Piece::King => false,
+            Piece::Queen => self.can_queen_reach(start_x, start_y, end_x, end_y),
+            Piece::King => self.can_king_reach(start_x, start_y, end_x, end_y),
             _ => false
         }
     }
@@ -119,6 +119,29 @@ impl Board {
 
     fn can_bishop_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
         return self.unobstructed_diagonal(start_x, start_y, end_x, end_y) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+    }
+
+    fn can_queen_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
+        return self.can_bishop_reach(start_x, start_y, end_x, end_y) || self.can_rook_reach(start_x, start_y, end_x, end_y)
+    }
+
+    fn can_king_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
+        let y_difference = end_y as i128 - start_y as i128;
+        let x_difference = end_x as i128 - start_x as i128;
+        if x_difference > 1 || y_difference > 1 {
+            return false;
+        }
+        return self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+    }
+
+    fn can_knight_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
+        let y_difference = end_y as i128 - start_y as i128;
+        let x_difference = end_x as i128 - start_x as i128;
+        return self.fits_knight_pattern(x_difference, y_difference) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+    }
+
+    fn fits_knight_pattern(&self, x_difference: i128, y_difference: i128) -> bool {
+        return (x_difference.abs() == 2 && y_difference.abs() == 1) || (x_difference.abs() == 1 && y_difference.abs() == 2)
     }
 
     fn unobstructed_file(&self, start_x: usize, start_y: usize, end_x: usize, end_y: usize) -> bool {
@@ -401,6 +424,74 @@ fn bishop_is_blocked_each_direction(){
     board = board.make_move(1, 4, 1, 3);
     assert_eq!(false, board.can_bishop_reach(2, 3, 3, 2));
     assert_eq!(false, board.can_bishop_reach(2, 3, 4, 1));
+}
+
+#[test]
+fn knight_movements(){
+    let mut board = Board::new();
+    board = board.make_move(6, 0, 5, 2);
+    board = board.make_move(6, 7, 5, 5);
+    board = board.make_move(5, 2, 6, 4);
+    board = board.make_move(5, 5, 6, 3);
+    assert_eq!(true, board.can_knight_reach(6, 4, 4, 3));
+    assert_eq!(true, board.can_knight_reach(6, 4, 4, 5));
+    assert_eq!(true, board.can_knight_reach(6, 4, 5, 2));
+    assert_eq!(true, board.can_knight_reach(6, 4, 5, 6));
+    assert_eq!(true, board.can_knight_reach(6, 4, 7, 2));
+    assert_eq!(true, board.can_knight_reach(6, 4, 7, 6));
+    board = board.make_move(6, 4, 5, 6);
+    assert_eq!(true, board.can_knight_reach(6, 3, 4, 2));
+    assert_eq!(true, board.can_knight_reach(6, 3, 4, 4));
+    assert_eq!(true, board.can_knight_reach(6, 3, 5, 1));
+    assert_eq!(true, board.can_knight_reach(6, 3, 5, 5));
+    assert_eq!(true, board.can_knight_reach(6, 3, 7, 1));
+    assert_eq!(true, board.can_knight_reach(6, 3, 7, 5));
+}
+
+#[test]
+fn queen_movement(){
+    let mut board = Board::new();
+    assert_eq!(false, board.can_queen_reach(3, 0, 5, 2));
+    assert_eq!(false, board.can_queen_reach(3, 0, 3, 2));
+    assert_eq!(false, board.can_queen_reach(3, 0, 4, 0));
+    assert_eq!(false, board.can_queen_reach(3, 0, 3, 0));
+    assert_eq!(false, board.can_queen_reach(3, 0, 2, 0));
+    assert_eq!(false, board.can_queen_reach(3, 0, 1, 0));
+    board = board.make_move(4, 1, 4, 3);
+    board = board.make_move(4, 6, 4, 4);
+    board = board.make_move(3, 0, 5, 2);
+    board = board.make_move(0, 6, 0, 4);
+    assert_eq!(true, board.can_queen_reach(5, 2, 5, 6));
+    assert_eq!(true, board.can_queen_reach(5, 2, 5, 5));
+    assert_eq!(true, board.can_queen_reach(5, 2, 5, 3));
+    assert_eq!(true, board.can_queen_reach(5, 2, 0, 2));
+    assert_eq!(true, board.can_queen_reach(5, 2, 4, 2));
+    assert_eq!(true, board.can_queen_reach(5, 2, 6, 2));
+    assert_eq!(true, board.can_queen_reach(5, 2, 7, 2));
+}
+
+#[test]
+fn king_movement(){
+    let mut board = Board::new();
+    assert_eq!(false, board.can_king_reach(4, 0, 4, 1));
+    assert_eq!(false, board.can_king_reach(4, 0, 3, 0));
+    board = board.make_move(4, 1, 4, 3);
+    board = board.make_move(4, 6, 4, 4);
+    assert_eq!(true, board.can_king_reach(4, 0, 4, 1));
+    board = board.make_move(4, 0, 4, 1);
+    assert_eq!(true, board.can_king_reach(4, 7, 4, 6));
+    board = board.make_move(4, 7, 4, 6);
+    assert_eq!(true, board.can_king_reach(4, 1, 4, 2));
+    assert_eq!(true, board.can_king_reach(4, 1, 5, 2));
+    assert_eq!(true, board.can_king_reach(4, 1, 3, 2));
+    board = board.make_move(4, 1, 5, 2);
+    assert_eq!(true, board.can_king_reach(4, 6, 5, 5));
+    assert_eq!(true, board.can_king_reach(4, 6, 4, 5));
+    assert_eq!(true, board.can_king_reach(4, 6, 3, 5));
+    board = board.make_move(4, 6, 3, 5);
+    board = board.make_move(5, 2, 6, 3);
+    board = board.make_move(3, 7, 6, 4);
+    assert_eq!(true, board.can_king_reach(6, 3, 6, 4));
 }
 
 }
