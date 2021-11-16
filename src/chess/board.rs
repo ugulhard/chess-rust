@@ -276,6 +276,12 @@ fn pawn_capture() {
 }
 
 #[test]
+fn pawn_cant_capture_empty_square() {
+    let mut board = Board::new();
+    assert_eq!(false, board.legal_move(4, 1, 5, 2));
+}
+
+#[test]
 fn far_away_pawn_capture() {
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 3);
@@ -537,7 +543,32 @@ fn simple_checks(){
     board = board.make_move(5, 2, 5, 6);
     assert_eq!(true, board.legal_move(4, 7, 5, 6));
     assert_eq!(false, board.legal_move(6, 6, 6, 5));
+}
 
+#[test]
+fn simple_pin(){
+    let mut board = Board::new();
+    board = board.make_move(4, 1, 4, 2);
+    board = board.make_move(3, 6, 3, 4);
+    assert_eq!(true, board.legal_move(5, 0, 1, 4));
+    board = board.make_move(5, 0, 1, 4);
+    board = board.make_move(1, 7, 2, 5);
+    board = board.make_move(0, 1, 0, 2);
+    assert_eq!(false, board.legal_move(2, 5, 1, 7));
+}
+
+#[test]
+fn pinned_piece_can_check(){
+    let mut board = Board::new();
+    board = board.make_move(4, 1, 5, 2);
+    board = board.make_move(3, 6, 3, 5);
+    board = board.make_move(5, 0, 1, 4);
+    board = board.make_move(1, 7, 2, 5);
+    board = board.make_move(4, 0, 4, 1);
+    board = board.make_move(7, 6, 7, 5);
+    board = board.make_move(4, 1, 3, 2);
+    board = board.make_move(7, 5, 7, 4);
+    assert_eq!(false, board.legal_move(3, 2, 4, 5));
 }
 
 }
