@@ -52,9 +52,41 @@ impl Board {
     }
 
     pub fn legal_move(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
-        let color = self.tiles[start_x][start_y].color;
-        return color == self.player_to_move
-        && self.piece_can_reach(start_x, start_y, end_x, end_y)
+        let color_before_move = self.tiles[start_x][start_y].color;
+        if color_before_move != self.player_to_move {
+            return false;
+        }
+        if self.piece_can_reach(start_x, start_y, end_x, end_y) {
+            //Check if resulting position is check for the player that moved
+            let new_board = self.make_move(start_x, start_y, end_x, end_y);
+            return !new_board.is_check(color_before_move);
+        }
+        return false;
+
+    }
+
+    fn is_check(&self, color_to_check: Color) -> bool {
+        let mut king_x = 8;
+        let mut king_y = 8;
+        for x in 0..self.tiles.len(){
+            for y in 0..self.tiles[x].len(){
+                if self.tiles[x][y].color == color_to_check
+                && self.tiles[x][y].piece == Piece::King {
+                    king_x = x;
+                    king_y = y;
+                }
+            }
+        }
+        for x in 0..self.tiles.len(){
+            for y in 0..self.tiles[x].len(){
+                if self.tiles[x][y].color != color_to_check {
+                    if self.piece_can_reach(x, y, king_x, king_y) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     fn piece_can_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
@@ -128,7 +160,7 @@ impl Board {
     fn can_king_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
         let y_difference = end_y as i128 - start_y as i128;
         let x_difference = end_x as i128 - start_x as i128;
-        if x_difference > 1 || y_difference > 1 {
+        if x_difference.abs() > 1 || y_difference.abs() > 1 {
             return false;
         }
         return self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
@@ -492,6 +524,20 @@ fn king_movement(){
     board = board.make_move(5, 2, 6, 3);
     board = board.make_move(3, 7, 6, 4);
     assert_eq!(true, board.legal_move(6, 3, 6, 4));
+}
+
+
+#[test]
+fn simple_checks(){
+    let mut board = Board::new();
+    board = board.make_move(4, 1, 5, 2);
+    board = board.make_move(4, 6, 4, 4);
+    board = board.make_move(3, 0, 5, 2);
+    board = board.make_move(0, 6, 0, 4);
+    board = board.make_move(5, 2, 5, 6);
+    assert_eq!(true, board.legal_move(4, 7, 5, 6));
+    assert_eq!(false, board.legal_move(6, 6, 6, 5));
+
 }
 
 }
