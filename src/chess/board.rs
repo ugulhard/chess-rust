@@ -1,6 +1,5 @@
 use super::{chess_move::ChessMove, color::Color, piece::Piece, tile::Tile, game_result::GameResult};
 use std::{fmt};
-extern crate itertools;
 
 #[derive(Debug, Clone)]
 pub struct Board {
