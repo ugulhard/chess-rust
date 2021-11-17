@@ -40,7 +40,7 @@ impl Board {
                 tiles[x].push(get_piece_for_starting_tile(x, y));
             }
         }
-        Board {tiles: tiles, player_to_move: Color::White}
+        Board {tiles, player_to_move: Color::White}
     }
 
     pub fn make_move(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> Board {
@@ -61,7 +61,7 @@ impl Board {
             let new_board = self.make_move(start_x, start_y, end_x, end_y);
             return !new_board.is_check(color_before_move);
         }
-        return false;
+        false
 
     }
 
@@ -79,14 +79,12 @@ impl Board {
         }
         for x in 0..self.tiles.len(){
             for y in 0..self.tiles[x].len(){
-                if self.tiles[x][y].color != color_to_check {
-                    if self.piece_can_reach(x, y, king_x, king_y) {
-                        return true;
-                    }
+                if self.tiles[x][y].color != color_to_check && self.piece_can_reach(x, y, king_x, king_y) {
+                    return true;
                 }
             }
         }
-        return false;
+        false
     }
 
     fn piece_can_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
@@ -121,7 +119,7 @@ impl Board {
                     //Can only move two steps if on start square
                 return (y_difference == 2 && start_y == 1) || y_difference == 1;
                 } 
-                return false;
+                false
             //En passant is fake news
             },
             Color::Black => {
@@ -132,7 +130,7 @@ impl Board {
                 } else if self.unobstructed_file(start_x, start_y, end_x, end_y) {
                 return (y_difference == -2 && start_y == 6) || y_difference == -1;
                 } 
-                return false;
+                false
             },
             _ => false
         }
@@ -146,15 +144,15 @@ impl Board {
             let end_index = if start_x < end_x {end_x - 1} else {end_x + 1};
             return  self.unobstructed_rank(start_x, start_y, end_index, end_y) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
         }
-        return false;
+        false
     }
 
     fn can_bishop_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
-        return self.unobstructed_diagonal(start_x, start_y, end_x, end_y) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+        self.unobstructed_diagonal(start_x, start_y, end_x, end_y) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
     }
 
     fn can_queen_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
-        return self.can_bishop_reach(start_x, start_y, end_x, end_y) || self.can_rook_reach(start_x, start_y, end_x, end_y)
+        self.can_bishop_reach(start_x, start_y, end_x, end_y) || self.can_rook_reach(start_x, start_y, end_x, end_y)
     }
 
     fn can_king_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
@@ -163,17 +161,17 @@ impl Board {
         if x_difference.abs() > 1 || y_difference.abs() > 1 {
             return false;
         }
-        return self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+        self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
     }
 
     fn can_knight_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
         let y_difference = end_y as i128 - start_y as i128;
         let x_difference = end_x as i128 - start_x as i128;
-        return self.fits_knight_pattern(x_difference, y_difference) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
+        self.fits_knight_pattern(x_difference, y_difference) && self.tiles[start_x][start_y].color != self.tiles[end_x][end_y].color
     }
 
     fn fits_knight_pattern(&self, x_difference: i128, y_difference: i128) -> bool {
-        return (x_difference.abs() == 2 && y_difference.abs() == 1) || (x_difference.abs() == 1 && y_difference.abs() == 2)
+        (x_difference.abs() == 2 && y_difference.abs() == 1) || (x_difference.abs() == 1 && y_difference.abs() == 2)
     }
 
     fn unobstructed_file(&self, start_x: usize, start_y: usize, end_x: usize, end_y: usize) -> bool {
@@ -181,9 +179,9 @@ impl Board {
             return false;
         }
         if start_y < end_y {
-            return ((start_y + 1)..(end_y + 1)).all(|idx| self.tiles[start_x][idx].piece == Piece::Empty);
+            ((start_y + 1)..(end_y + 1)).all(|idx| self.tiles[start_x][idx].piece == Piece::Empty)
         } else {
-            return (end_y..start_y).all(|idx| self.tiles[start_x][idx].piece == Piece::Empty);
+            (end_y..start_y).all(|idx| self.tiles[start_x][idx].piece == Piece::Empty)
         }
     }
 
@@ -192,9 +190,9 @@ impl Board {
             return false;
         }
         if start_x < end_x {
-            return ((start_x + 1)..(end_x + 1)).all(|idx| self.tiles[idx][start_y].piece == Piece::Empty);
+            ((start_x + 1)..(end_x + 1)).all(|idx| self.tiles[idx][start_y].piece == Piece::Empty)
         } else {
-            return (end_x..start_x).all(|idx| self.tiles[idx][start_y].piece == Piece::Empty);
+            (end_x..start_x).all(|idx| self.tiles[idx][start_y].piece == Piece::Empty)
         }
     }
 
@@ -216,7 +214,7 @@ impl Board {
             x_idx += x_order;
             y_idx += y_order;
         }
-        return true;
+        true
         
     }
 }
@@ -229,7 +227,7 @@ impl fmt::Display for Board {
             for x in 0..8 {
                 row_string += self.tiles[x][y].get_symbol_for_tile();
             }
-            board_string.insert_str(0, "\n");
+            board_string.insert(0, '\n');
             board_string.insert_str(0, row_string.as_str());
         }
         write!(f, "{}", board_string)
@@ -277,7 +275,7 @@ fn pawn_capture() {
 
 #[test]
 fn pawn_cant_capture_empty_square() {
-    let mut board = Board::new();
+    let board = Board::new();
     assert_eq!(false, board.legal_move(4, 1, 5, 2));
 }
 
