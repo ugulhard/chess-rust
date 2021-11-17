@@ -1,5 +1,6 @@
-use super::{color::Color, piece::Piece, tile::Tile};
+use super::{chess_move::ChessMove, color::Color, piece::Piece, tile::Tile, game_result::GameResult};
 use std::{fmt};
+extern crate itertools;
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -62,29 +63,41 @@ impl Board {
             return !new_board.is_check(color_before_move);
         }
         false
+    }
 
+    pub fn result(&self) -> GameResult {
+        if self.legal_moves().is_empty() {
+            if self.player_to_move == Color::White {
+                if self.is_check(Color::White){
+                    return GameResult::BlackWin
+                }
+            } else {
+                if self.is_check(Color::Black){
+                    return GameResult::WhiteWin
+                }
+                return GameResult::Draw
+            }
+        }
+        return GameResult::Ongoing
+    }
+
+    pub fn legal_moves(&self) -> Vec<ChessMove> {
+        self.possible_moves().into_iter()
+        .filter(|chessMove| self.legal_move(chessMove.start_pos.0, chessMove.start_pos.1, chessMove.end_pos.0, chessMove.end_pos.1))
+        .collect()
+    }
+
+    fn possible_moves(&self) -> Vec<ChessMove> {
+        all_squares().into_iter().zip(all_squares())
+        .filter(|((start_x, start_y),(end_x, end_y))| self.piece_can_reach(*start_x, *start_y, *end_x, *end_y) && self.tiles[*start_x][*start_y].color == self.player_to_move)
+        .map(|((start_x, start_y),(end_x, end_y))| ChessMove{start_pos: (start_x, start_y), end_pos : (end_x, end_y)})
+        .collect()
     }
 
     fn is_check(&self, color_to_check: Color) -> bool {
-        let mut king_x = 8;
-        let mut king_y = 8;
-        for x in 0..self.tiles.len(){
-            for y in 0..self.tiles[x].len(){
-                if self.tiles[x][y].color == color_to_check
-                && self.tiles[x][y].piece == Piece::King {
-                    king_x = x;
-                    king_y = y;
-                }
-            }
-        }
-        for x in 0..self.tiles.len(){
-            for y in 0..self.tiles[x].len(){
-                if self.tiles[x][y].color != color_to_check && self.piece_can_reach(x, y, king_x, king_y) {
-                    return true;
-                }
-            }
-        }
-        false
+        let king_position: Option<(usize, usize)> = all_squares().into_iter().find(|(x ,y)| self.tiles[*x][*y].color == color_to_check && self.tiles[*x][*y].piece == Piece::King);
+        let (king_x, king_y) = king_position.unwrap();
+        all_squares().into_iter().any(|(x, y)| self.tiles[x][y].color != color_to_check && self.piece_can_reach(x, y, king_x, king_y))
     }
 
     fn piece_can_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
@@ -217,6 +230,16 @@ impl Board {
         true
         
     }
+}
+
+fn all_squares() -> Vec<(usize, usize)> {
+    let mut squares = Vec::<(usize, usize)>::new();
+    for x in 0..8 {
+        for y in 0..8 {
+            squares.push((x, y));
+        }
+    }
+    squares
 }
 
 impl fmt::Display for Board {
