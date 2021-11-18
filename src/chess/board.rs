@@ -32,12 +32,24 @@ fn get_piece_for_starting_tile( x: usize, y: usize ) -> Tile {
 }
 
 impl Board {
+    //Standard chess board
     pub fn new() -> Board{
         let mut tiles = Vec::<Vec::<Tile>>::new();
         for x in 0..8 {
             tiles.push(Vec::<Tile>::new());
             for y in 0..8 {
                 tiles[x].push(get_piece_for_starting_tile(x, y));
+            }
+        }
+        Board {tiles, player_to_move: Color::White}
+    }
+    //Empty chess board for tests or other purposes
+    pub fn empty() -> Board{
+        let mut tiles = Vec::<Vec::<Tile>>::new();
+        for x in 0..8 {
+            tiles.push(Vec::<Tile>::new());
+            for _y in 0..8 {
+                tiles[x].push(Tile{piece: Piece::Empty, color: Color::Empty});
             }
         }
         Board {tiles, player_to_move: Color::White}
@@ -589,6 +601,30 @@ fn pinned_piece_can_check(){
     board = board.make_move(4, 1, 3, 2);
     board = board.make_move(7, 5, 7, 4);
     assert!(!board.legal_move(3, 2, 4, 5));
+}
+
+#[test]
+fn scholars_mate(){
+    let mut board = Board::new();
+    board = board.make_move(4, 1, 5, 2);
+    board = board.make_move(3, 6, 3, 5);
+    board = board.make_move(3, 0, 5, 2);
+    board = board.make_move(1, 7, 2, 5);
+    board = board.make_move(5, 0, 2, 3);
+    board = board.make_move(7, 6, 7, 5);
+    assert_eq!(GameResult::Ongoing, board.result());
+    board = board.make_move(5, 2, 5, 6);
+    assert!(board.legal_moves().is_empty());
+    assert_eq!(GameResult::WhiteWin, board.result());
+}
+
+#[test]
+fn draw(){
+    let mut board = Board::empty();
+    board.tiles[0][0] = Tile{piece: Piece::King, color: Color::White};
+    board.tiles[0][5] = Tile{piece: Piece::King, color: Color::Black};
+    board.tiles[2][1] = Tile{piece: Piece::Queen, color: Color::Black};
+    assert_eq!(GameResult::Draw, board.result());
 }
 
 }
