@@ -77,12 +77,12 @@ impl Board {
                 return GameResult::Draw
             }
         }
-        return GameResult::Ongoing
+        GameResult::Ongoing
     }
 
     pub fn legal_moves(&self) -> Vec<ChessMove> {
         self.possible_moves().into_iter()
-        .filter(|chessMove| self.legal_move(chessMove.start_pos.0, chessMove.start_pos.1, chessMove.end_pos.0, chessMove.end_pos.1))
+        .filter(|chess_move| self.legal_move(chess_move.start_pos.0, chess_move.start_pos.1, chess_move.end_pos.0, chess_move.end_pos.1))
         .collect()
     }
 
@@ -258,16 +258,16 @@ impl fmt::Display for Board {
 
 mod tests {
     use super::*;
-    #[test]
+#[test]
 fn pawn_move_one_step() {
     let board = Board::new();
-    assert_eq!(true, board.legal_move(4, 1, 4, 2));
+    assert!(board.legal_move(4, 1, 4, 2));
 }
 
 #[test]
 fn pawn_move_two_steps() {
     let board = Board::new();
-    assert_eq!(true, board.legal_move(4, 1, 4, 3));
+    assert!(board.legal_move(4, 1, 4, 3));
 }
 
 #[test]
@@ -276,7 +276,7 @@ fn pawn_move_two_steps_not_start_square() {
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(4, 6, 3, 3);
     board = board.make_move(4, 1, 4, 5);
-    assert_eq!(false, board.legal_move(4, 3, 4, 5));
+    assert!(!board.legal_move(4, 3, 4, 5));
 }
 
 #[test]
@@ -284,7 +284,7 @@ fn pawn_move_one_step_not_start_square() {
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 2);
     board = board.make_move(4, 6, 3, 5);
-    assert_eq!(true, board.legal_move(4, 2, 4, 3));
+    assert!(board.legal_move(4, 2, 4, 3));
 }
 
 #[test]
@@ -292,13 +292,13 @@ fn pawn_capture() {
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(5, 6, 5, 4);
-    assert_eq!(true, board.legal_move(4, 3, 5, 4));
+    assert!(board.legal_move(4, 3, 5, 4));
 }
 
 #[test]
 fn pawn_cant_capture_empty_square() {
     let board = Board::new();
-    assert_eq!(false, board.legal_move(4, 1, 5, 2));
+    assert!(!board.legal_move(4, 1, 5, 2));
 }
 
 #[test]
@@ -306,7 +306,7 @@ fn far_away_pawn_capture() {
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(6, 6, 6, 4);
-    assert_eq!(false, board.legal_move(4, 3, 6, 4));
+    assert!(!board.legal_move(4, 3, 6, 4));
 }
 
 #[test]
@@ -314,27 +314,27 @@ fn blocked_pawn_movement() {
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(4, 6, 4, 4);
-    assert_eq!(false, board.legal_move(4, 3, 4, 4));
+    assert!(!board.legal_move(4, 3, 4, 4));
 }
 
 #[test]
 fn pawn_move_three_steps() {
     let board = Board::new();
-    assert_eq!(false, board.legal_move(4, 1, 4, 4));
+    assert!(!board.legal_move(4, 1, 4, 4));
 }
 
 #[test]
 fn pawn_move_black_two_steps() {
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 3);
-    assert_eq!(true, board.legal_move(1, 6, 1, 4));
+    assert!(board.legal_move(1, 6, 1, 4));
 }
 
 #[test]
 fn pawn_move_black_one_step() {
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 3);
-    assert_eq!(true, board.legal_move(1, 6, 1, 5));
+    assert!(board.legal_move(1, 6, 1, 5));
 }
 
 #[test]
@@ -343,62 +343,62 @@ fn blocked_pawn_movement_and_capture_black() {
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(4, 6, 4, 4);
     board = board.make_move(5, 1, 5, 3);
-    assert_eq!(true, board.legal_move(4, 4, 5, 3));
-    assert_eq!(false, board.legal_move(4, 4, 4, 3));
+    assert!(board.legal_move(4, 4, 5, 3));
+    assert!(!board.legal_move(4, 4, 4, 3));
 }
 
 #[test]
 fn move_no_piece() {
     let board = Board::new();
-    assert_eq!(false, board.legal_move(2, 2, 3, 3));
+    assert!(!board.legal_move(2, 2, 3, 3));
 }
 
 #[test]
 fn pawn_move_wrong_color() {
     let board = Board::new();
-    assert_eq!(false, board.legal_move(4, 6, 4, 4));
+    assert!(!board.legal_move(4, 6, 4, 4));
 }
 
 #[test]
 fn unobstructed_file_all_empty(){
     let board = Board::new();
-    assert_eq!(true, board.unobstructed_file(4, 2, 4, 5));
+    assert!(board.unobstructed_file(4, 2, 4, 5));
 }
 
 #[test]
 fn unobstructed_file_one_step(){
     let board = Board::new();
-    assert_eq!(true, board.unobstructed_file(4, 4, 4, 5));
+    assert!(board.unobstructed_file(4, 4, 4, 5));
 }
 
 #[test]
 fn unobstructed_file_start_with_piece(){
     let board = Board::new();
-    assert_eq!(true, board.unobstructed_file(4, 1, 4, 5));
+    assert!(board.unobstructed_file(4, 1, 4, 5));
 }
 
 #[test]
 fn obstructed_file(){
     let board = Board::new();
-    assert_eq!(false, board.unobstructed_file(4, 1, 4, 6));
+    assert!(!board.unobstructed_file(4, 1, 4, 6));
 }
 
 #[test]
 fn obstructed_file_one_step(){
     let board = Board::new();
-    assert_eq!(false, board.unobstructed_file(4, 5, 4, 6));
+    assert!(!board.unobstructed_file(4, 5, 4, 6));
 }
 
 #[test]
 fn unobstructed_file_start_with_piece_start_larger_than_end(){
     let board = Board::new();
-    assert_eq!(true, board.unobstructed_file(4, 6, 4, 2));
+    assert!(board.unobstructed_file(4, 6, 4, 2));
 }
 
 #[test]
 fn obstructed_file_start_with_piece_start_larger_than_end(){
     let board = Board::new();
-    assert_eq!(false, board.unobstructed_file(4, 6, 4, 1));
+    assert!(!board.unobstructed_file(4, 6, 4, 1));
 }
 
 #[test]
@@ -406,15 +406,15 @@ fn rook_can_move(){
     let mut board = Board::new();
     board = board.make_move(0, 1, 0, 3);
     board = board.make_move(0, 6, 0, 4);
-    assert_eq!(true, board.legal_move(0, 0, 0, 2));
+    assert!(board.legal_move(0, 0, 0, 2));
 }
 
 
 #[test]
 fn rook_is_obstructed(){
     let board = Board::new();
-    assert_eq!(false, board.legal_move(0, 0, 0, 2));
-    assert_eq!(false, board.legal_move(0, 0, 0, 1));
+    assert!(!board.legal_move(0, 0, 0, 2));
+    assert!(!board.legal_move(0, 0, 0, 1));
 
 }
 
@@ -425,9 +425,9 @@ fn rook_can_capture_file(){
     board = board.make_move(1, 6, 1, 4);
     board = board.make_move(0, 3, 1, 4);
     board = board.make_move(2, 6, 2, 4);
-    assert_eq!(true, board.legal_move(0, 0, 0, 6));
+    assert!(board.legal_move(0, 0, 0, 6));
     board = board.make_move(0, 0, 0, 6);
-    assert_eq!(true, board.legal_move(0, 7, 0, 6));
+    assert!(board.legal_move(0, 7, 0, 6));
 }
 
 #[test]
@@ -446,12 +446,12 @@ fn rook_can_capture_rank(){
     board = board.make_move(2, 2, 2, 4);
     board = board.make_move(1, 5, 1, 3);
     //Check if white can capture
-    assert_eq!(true, board.legal_move(2, 4, 0, 4));
-    assert_eq!(true, board.legal_move(2, 4, 7, 4));
+    assert!(board.legal_move(2, 4, 0, 4));
+    assert!(board.legal_move(2, 4, 7, 4));
     board = board.make_move(2, 4, 0, 4);
     //Likewise for black
-    assert_eq!(true, board.legal_move(1, 3, 0, 3));
-    assert_eq!(true, board.legal_move(1, 3, 7, 3));
+    assert!(board.legal_move(1, 3, 0, 3));
+    assert!(board.legal_move(1, 3, 7, 3));
 }
 
 #[test]
@@ -461,11 +461,11 @@ fn bishop_can_travel_each_direction(){
     board = board.make_move(4, 6, 4, 4);
     board = board.make_move(5, 0, 2, 3);
     board = board.make_move(0, 6, 0, 4);
-    assert_eq!(true, board.legal_move(2, 3, 0, 5));
-    assert_eq!(true, board.legal_move(2, 3, 1, 4));
-    assert_eq!(true, board.legal_move(2, 3, 1, 2));
-    assert_eq!(true, board.legal_move(2, 3, 3, 4));
-    assert_eq!(true, board.legal_move(2, 3, 4, 5));
+    assert!(board.legal_move(2, 3, 0, 5));
+    assert!(board.legal_move(2, 3, 1, 4));
+    assert!(board.legal_move(2, 3, 1, 2));
+    assert!(board.legal_move(2, 3, 3, 4));
+    assert!(board.legal_move(2, 3, 4, 5));
 }
 
 #[test]
@@ -475,13 +475,13 @@ fn bishop_is_blocked_each_direction(){
     board = board.make_move(3, 6, 3, 4);
     board = board.make_move(5, 0, 2, 3);
     board = board.make_move(1, 6, 1, 4);
-    assert_eq!(false, board.legal_move(2, 3, 0, 1));
-    assert_eq!(false, board.legal_move(2, 3, 0, 5));
-    assert_eq!(false, board.legal_move(2, 3, 4, 5));
+    assert!(!board.legal_move(2, 3, 0, 1));
+    assert!(!board.legal_move(2, 3, 0, 5));
+    assert!(!board.legal_move(2, 3, 4, 5));
     board = board.make_move(3, 1, 3, 2);
     board = board.make_move(1, 4, 1, 3);
-    assert_eq!(false, board.legal_move(2, 3, 3, 2));
-    assert_eq!(false, board.legal_move(2, 3, 4, 1));
+    assert!(!board.legal_move(2, 3, 3, 2));
+    assert!(!board.legal_move(2, 3, 4, 1));
 }
 
 #[test]
@@ -491,65 +491,65 @@ fn knight_movements(){
     board = board.make_move(6, 7, 5, 5);
     board = board.make_move(5, 2, 6, 4);
     board = board.make_move(5, 5, 6, 3);
-    assert_eq!(true, board.legal_move(6, 4, 4, 3));
-    assert_eq!(true, board.legal_move(6, 4, 4, 5));
-    assert_eq!(true, board.legal_move(6, 4, 5, 2));
-    assert_eq!(true, board.legal_move(6, 4, 5, 6));
-    assert_eq!(true, board.legal_move(6, 4, 7, 2));
-    assert_eq!(true, board.legal_move(6, 4, 7, 6));
+    assert!(board.legal_move(6, 4, 4, 3));
+    assert!(board.legal_move(6, 4, 4, 5));
+    assert!(board.legal_move(6, 4, 5, 2));
+    assert!(board.legal_move(6, 4, 5, 6));
+    assert!(board.legal_move(6, 4, 7, 2));
+    assert!(board.legal_move(6, 4, 7, 6));
     board = board.make_move(6, 4, 5, 6);
-    assert_eq!(true, board.legal_move(6, 3, 4, 2));
-    assert_eq!(true, board.legal_move(6, 3, 4, 4));
-    assert_eq!(true, board.legal_move(6, 3, 5, 1));
-    assert_eq!(true, board.legal_move(6, 3, 5, 5));
-    assert_eq!(true, board.legal_move(6, 3, 7, 1));
-    assert_eq!(true, board.legal_move(6, 3, 7, 5));
+    assert!(board.legal_move(6, 3, 4, 2));
+    assert!(board.legal_move(6, 3, 4, 4));
+    assert!(board.legal_move(6, 3, 5, 1));
+    assert!(board.legal_move(6, 3, 5, 5));
+    assert!(board.legal_move(6, 3, 7, 1));
+    assert!(board.legal_move(6, 3, 7, 5));
 }
 
 #[test]
 fn queen_movement(){
     let mut board = Board::new();
-    assert_eq!(false, board.legal_move(3, 0, 5, 2));
-    assert_eq!(false, board.legal_move(3, 0, 3, 2));
-    assert_eq!(false, board.legal_move(3, 0, 4, 0));
-    assert_eq!(false, board.legal_move(3, 0, 3, 0));
-    assert_eq!(false, board.legal_move(3, 0, 2, 0));
-    assert_eq!(false, board.legal_move(3, 0, 1, 0));
+    assert!(!board.legal_move(3, 0, 5, 2));
+    assert!(!board.legal_move(3, 0, 3, 2));
+    assert!(!board.legal_move(3, 0, 4, 0));
+    assert!(!board.legal_move(3, 0, 3, 0));
+    assert!(!board.legal_move(3, 0, 2, 0));
+    assert!(!board.legal_move(3, 0, 1, 0));
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(4, 6, 4, 4);
     board = board.make_move(3, 0, 5, 2);
     board = board.make_move(0, 6, 0, 4);
-    assert_eq!(true, board.legal_move(5, 2, 5, 6));
-    assert_eq!(true, board.legal_move(5, 2, 5, 5));
-    assert_eq!(true, board.legal_move(5, 2, 5, 3));
-    assert_eq!(true, board.legal_move(5, 2, 0, 2));
-    assert_eq!(true, board.legal_move(5, 2, 4, 2));
-    assert_eq!(true, board.legal_move(5, 2, 6, 2));
-    assert_eq!(true, board.legal_move(5, 2, 7, 2));
+    assert!(board.legal_move(5, 2, 5, 6));
+    assert!(board.legal_move(5, 2, 5, 5));
+    assert!(board.legal_move(5, 2, 5, 3));
+    assert!(board.legal_move(5, 2, 0, 2));
+    assert!(board.legal_move(5, 2, 4, 2));
+    assert!(board.legal_move(5, 2, 6, 2));
+    assert!(board.legal_move(5, 2, 7, 2));
 }
 
 #[test]
 fn king_movement(){
     let mut board = Board::new();
-    assert_eq!(false, board.legal_move(4, 0, 4, 1));
-    assert_eq!(false, board.legal_move(4, 0, 3, 0));
+    assert!(!board.legal_move(4, 0, 4, 1));
+    assert!(!board.legal_move(4, 0, 3, 0));
     board = board.make_move(4, 1, 4, 3);
     board = board.make_move(4, 6, 4, 4);
-    assert_eq!(true, board.legal_move(4, 0, 4, 1));
+    assert!(board.legal_move(4, 0, 4, 1));
     board = board.make_move(4, 0, 4, 1);
-    assert_eq!(true, board.legal_move(4, 7, 4, 6));
+    assert!(board.legal_move(4, 7, 4, 6));
     board = board.make_move(4, 7, 4, 6);
-    assert_eq!(true, board.legal_move(4, 1, 4, 2));
-    assert_eq!(true, board.legal_move(4, 1, 5, 2));
-    assert_eq!(true, board.legal_move(4, 1, 3, 2));
+    assert!(board.legal_move(4, 1, 4, 2));
+    assert!(board.legal_move(4, 1, 5, 2));
+    assert!(board.legal_move(4, 1, 3, 2));
     board = board.make_move(4, 1, 5, 2);
-    assert_eq!(true, board.legal_move(4, 6, 5, 5));
-    assert_eq!(true, board.legal_move(4, 6, 4, 5));
-    assert_eq!(true, board.legal_move(4, 6, 3, 5));
+    assert!(board.legal_move(4, 6, 5, 5));
+    assert!(board.legal_move(4, 6, 4, 5));
+    assert!(board.legal_move(4, 6, 3, 5));
     board = board.make_move(4, 6, 3, 5);
     board = board.make_move(5, 2, 6, 3);
     board = board.make_move(3, 7, 6, 4);
-    assert_eq!(true, board.legal_move(6, 3, 6, 4));
+    assert!(board.legal_move(6, 3, 6, 4));
 }
 
 
@@ -561,8 +561,8 @@ fn simple_checks(){
     board = board.make_move(3, 0, 5, 2);
     board = board.make_move(0, 6, 0, 4);
     board = board.make_move(5, 2, 5, 6);
-    assert_eq!(true, board.legal_move(4, 7, 5, 6));
-    assert_eq!(false, board.legal_move(6, 6, 6, 5));
+    assert!(board.legal_move(4, 7, 5, 6));
+    assert!(!board.legal_move(6, 6, 6, 5));
 }
 
 #[test]
@@ -570,11 +570,11 @@ fn simple_pin(){
     let mut board = Board::new();
     board = board.make_move(4, 1, 4, 2);
     board = board.make_move(3, 6, 3, 4);
-    assert_eq!(true, board.legal_move(5, 0, 1, 4));
+    assert!(board.legal_move(5, 0, 1, 4));
     board = board.make_move(5, 0, 1, 4);
     board = board.make_move(1, 7, 2, 5);
     board = board.make_move(0, 1, 0, 2);
-    assert_eq!(false, board.legal_move(2, 5, 1, 7));
+    assert!(!board.legal_move(2, 5, 1, 7));
 }
 
 #[test]
@@ -588,7 +588,7 @@ fn pinned_piece_can_check(){
     board = board.make_move(7, 6, 7, 5);
     board = board.make_move(4, 1, 3, 2);
     board = board.make_move(7, 5, 7, 4);
-    assert_eq!(false, board.legal_move(3, 2, 4, 5));
+    assert!(!board.legal_move(3, 2, 4, 5));
 }
 
 }
