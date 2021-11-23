@@ -6,7 +6,7 @@ pub struct ChessMove {
 
 impl ChessMove {
     pub fn from(chess_move_string: String) -> ChessMove {
-        let tile_strings = chess_move_string.split(" ");
+        let tile_strings = chess_move_string.split(' ');
         let tile_strings_vec: Vec<String> = tile_strings.map(String::from).collect();
         let start_x_string = tile_strings_vec.get(0);
         let start_y_string = tile_strings_vec.get(1);
