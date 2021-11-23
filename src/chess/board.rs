@@ -81,13 +81,12 @@ impl Board {
             if self.player_to_move == Color::White {
                 if self.is_check(Color::White){
                     return GameResult::BlackWin
-                }
-            } else {
-                if self.is_check(Color::Black){
+                } 
+            } else if self.is_check(Color::Black) {
                     return GameResult::WhiteWin
-                }
+                } 
                 return GameResult::Draw
-            }
+
         }
         GameResult::Ongoing
     }
@@ -99,10 +98,15 @@ impl Board {
     }
 
     fn possible_moves(&self) -> Vec<ChessMove> {
-        all_squares().into_iter().zip(all_squares())
-        .filter(|((start_x, start_y),(end_x, end_y))| self.piece_can_reach(*start_x, *start_y, *end_x, *end_y) && self.tiles[*start_x][*start_y].color == self.player_to_move)
-        .map(|((start_x, start_y),(end_x, end_y))| ChessMove{start_pos: (start_x, start_y), end_pos : (end_x, end_y)})
-        .collect()
+        let mut possible_moves = Vec::<ChessMove>::new();
+        for (start_x, start_y) in all_squares() {
+            for (end_x, end_y) in all_squares() {
+                if self.piece_can_reach(start_x, start_y, end_x, end_y) {
+                    possible_moves.push(ChessMove{start_pos: (start_x, start_y), end_pos : (end_x, end_y)});
+                }
+            }
+        }
+        possible_moves
     }
 
     fn is_check(&self, color_to_check: Color) -> bool {
@@ -607,11 +611,13 @@ fn pinned_piece_can_check(){
 fn scholars_mate(){
     let mut board = Board::new();
     board = board.make_move(4, 1, 5, 2);
-    board = board.make_move(3, 6, 3, 5);
+    board = board.make_move(1, 7, 0, 5);
     board = board.make_move(3, 0, 5, 2);
-    board = board.make_move(1, 7, 2, 5);
+    board = board.make_move(0, 5, 1, 7);
     board = board.make_move(5, 0, 2, 3);
-    board = board.make_move(7, 6, 7, 5);
+    board = board.make_move(1, 7, 0, 5);
+    assert!(board.legal_move(5, 2, 5, 6));
+    assert!(!board.legal_moves().is_empty());
     assert_eq!(GameResult::Ongoing, board.result());
     board = board.make_move(5, 2, 5, 6);
     assert!(board.legal_moves().is_empty());
