@@ -99,8 +99,8 @@ impl Board {
 
     fn possible_moves(&self) -> Vec<ChessMove> {
         let mut possible_moves = Vec::<ChessMove>::new();
-        for (start_x, start_y) in all_squares() {
-            for (end_x, end_y) in all_squares() {
+        for (start_x, start_y) in self.all_squares() {
+            for (end_x, end_y) in self.all_squares() {
                 if self.piece_can_reach(start_x, start_y, end_x, end_y) {
                     possible_moves.push(ChessMove{start_pos: (start_x, start_y), end_pos : (end_x, end_y)});
                 }
@@ -110,9 +110,9 @@ impl Board {
     }
 
     fn is_check(&self, color_to_check: Color) -> bool {
-        let king_position: Option<(usize, usize)> = all_squares().into_iter().find(|(x ,y)| self.tiles[*x][*y].color == color_to_check && self.tiles[*x][*y].piece == Piece::King);
+        let king_position: Option<(usize, usize)> = self.all_squares().into_iter().find(|(x ,y)| self.tiles[*x][*y].color == color_to_check && self.tiles[*x][*y].piece == Piece::King);
         let (king_x, king_y) = king_position.unwrap();
-        all_squares().into_iter().any(|(x, y)| self.tiles[x][y].color != color_to_check && self.piece_can_reach(x, y, king_x, king_y))
+        self.all_squares().into_iter().any(|(x, y)| self.tiles[x][y].color != color_to_check && self.piece_can_reach(x, y, king_x, king_y))
     }
 
     fn piece_can_reach(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
@@ -243,19 +243,20 @@ impl Board {
             y_idx += y_order;
         }
         true
-        
+    }
+
+    fn all_squares(&self) -> Vec<(usize, usize)> {
+        let mut squares = Vec::<(usize, usize)>::new();
+        for x in 0..self.tiles.len() {
+            for y in 0..self.tiles[x].len() {
+                squares.push((x, y));
+            }
+        }
+        squares
     }
 }
 
-fn all_squares() -> Vec<(usize, usize)> {
-    let mut squares = Vec::<(usize, usize)>::new();
-    for x in 0..8 {
-        for y in 0..8 {
-            squares.push((x, y));
-        }
-    }
-    squares
-}
+
 
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
