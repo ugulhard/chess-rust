@@ -5,19 +5,81 @@ pub struct ChessMove {
 }
 
 impl ChessMove {
-    pub fn from(chess_move_string: String) -> ChessMove {
-        let tile_strings = chess_move_string.split(' ');
-        let tile_strings_vec: Vec<String> = tile_strings.map(String::from).collect();
-        let start_x_string = tile_strings_vec.get(0);
-        let start_y_string = tile_strings_vec.get(1);
-        let end_x_string = tile_strings_vec.get(2);
-        let end_y_string = tile_strings_vec.get(3);
-        let error_msg = "Incorrect format for input";
-        println!("Vec: {:?}", tile_strings_vec);
-        let start_x : usize = start_x_string.expect(error_msg).parse().expect(error_msg);
-        let start_y : usize = start_y_string.expect(error_msg).parse().expect(error_msg);
-        let end_x : usize = end_x_string.expect(error_msg).parse().expect(error_msg);
-        let end_y : usize = end_y_string.expect(error_msg).parse().expect(error_msg);
-        ChessMove {start_pos: (start_x, start_y), end_pos: (end_x, end_y)}
+    pub fn from(chess_move_string: String) -> Option<ChessMove> {
+        let index_strings = chess_move_string.split(' ');
+        if chess_move_string.split(' ').count() != 4 {
+            return None;
+        }
+        let mut indices = Vec::new();
+        for index_string in index_strings {
+            let index = parse_chess_move(index_string)?;
+            if !valid_index(index) {
+                return None;
+            } else {
+                indices.push(index);
+            }
+        }
+        let start_x = indices.get(0)?;
+        let start_y = indices.get(1)?;
+        let end_x = indices.get(2)?;
+        let end_y = indices.get(3)?;
+        Some(ChessMove {start_pos: (*start_x, *start_y), end_pos: (*end_x, *end_y)})
     }
+}
+
+fn parse_chess_move(move_string: &str) -> Option<usize> {
+    let move_usize = move_string.parse::<usize>();
+    match move_usize {
+        Ok(move_usize) => Some(move_usize),
+        _ => None
+    }
+}
+
+fn valid_index(index: usize) -> bool {
+    index <= 7
+}
+
+#[test]
+fn normal_move(){
+    let move_string = String::from("0 1 0 3");
+    let chess_move = ChessMove::from(move_string).unwrap();
+    assert_eq!(chess_move.start_pos.0, 0);
+    assert_eq!(chess_move.start_pos.1, 1);
+    assert_eq!(chess_move.end_pos.0, 0);
+    assert_eq!(chess_move.end_pos.1, 3);
+}
+
+#[test]
+#[should_panic]
+fn too_many_entries(){
+    let move_string = String::from("0 1 0 3 4");
+    ChessMove::from(move_string).unwrap();
+}
+
+#[test]
+#[should_panic]
+fn too_few_indices(){
+    let move_string = String::from("0 1 0");
+    ChessMove::from(move_string).unwrap();
+}
+
+#[test]
+#[should_panic]
+fn too_large_index(){
+    let move_string = String::from("0 1 0 8");
+    ChessMove::from(move_string).unwrap();
+}
+
+#[test]
+#[should_panic]
+fn too_small_index(){
+    let move_string = String::from("0 -1 0 6");
+    ChessMove::from(move_string).unwrap();
+}
+
+#[test]
+#[should_panic]
+fn empty_string(){
+    let move_string = String::from("");
+    ChessMove::from(move_string).unwrap();
 }
