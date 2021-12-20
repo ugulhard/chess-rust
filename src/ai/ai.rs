@@ -20,7 +20,7 @@ impl minimax_ai {
     pub fn find_best_move(&self, board: &Board, color: Color) -> ChessMove {
         let mut chess_moves = board.legal_moves();
         let mut best_move = chess_moves.pop().expect("No legal moves, the game should be over");
-        let mut best_value = evaluate(&board.make_move(best_move.get_start_x(), best_move.get_start_y(), best_move.get_end_x(), best_move.get_end_y())) as f64;
+        let mut best_value = evaluate(&board.make_move_with_struct(best_move)) as f64;
         for chess_move in chess_moves {
             let new_board = board.make_move_with_struct(chess_move);
             let move_value = minimax_ai::minimax(&new_board, self.max_depth -1, false, color);
@@ -78,7 +78,12 @@ impl minimax_ai {
 }
 mod tests {
     use crate::{chess::{tile::Tile, board::Board, piece::Piece, color::Color, chess_move::ChessMove}, ai::ai::minimax_ai};
+    #[test]
+    #[should_panic]
+    fn create_ai_with_depth_0_panics(){
+        let ai = minimax_ai::new(0);
 
+    }
     #[test]
     fn maximize(){
         assert!(!minimax_ai::move_maximizes_for_color(Color::White, 5.0, 0.0));
