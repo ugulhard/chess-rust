@@ -1,8 +1,8 @@
 pub mod board;
-mod color;
+pub(crate) mod color;
 pub mod chess_move;
-mod piece;
-mod tile;
+pub(crate) mod piece;
+pub(crate) mod tile;
 pub mod game_result;
 mod move_generator;
-mod evaluation;
+pub mod evaluation;

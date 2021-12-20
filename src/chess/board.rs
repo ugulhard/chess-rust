@@ -63,6 +63,10 @@ impl Board {
         new_board
     }
 
+    pub fn make_move_with_struct(&self, chess_move: ChessMove) -> Board {
+        self.make_move(chess_move.get_start_x(), chess_move.get_start_y(), chess_move.get_end_x(), chess_move.get_end_y())
+    }
+
     pub fn legal_move(&self, start_x: usize,start_y: usize, end_x: usize, end_y: usize) -> bool {
         let color_before_move = self.tiles[start_x][start_y].color;
         if color_before_move != self.player_to_move {
@@ -427,6 +431,17 @@ fn pinned_piece_can_check(){
 }
 
 #[test]
+fn can_take_queen(){
+    let mut board = Board::empty();
+    board.tiles[1][0] = Tile{piece: Piece::King, color: Color::White};
+    board.tiles[7][7] = Tile{piece: Piece::King, color: Color::Black};
+    board.tiles[2][1] = Tile{piece: Piece::Queen, color: Color::Black};
+    assert!(board.legal_move(1, 0, 2, 1));
+    assert!(board.legal_move(1, 0, 0, 0));
+    assert_eq!(2, board.legal_moves().len())
+}
+
+#[test]
 fn scholars_mate(){
     let mut board = Board::new();
     board = board.make_move(4, 1, 5, 2);
@@ -442,6 +457,8 @@ fn scholars_mate(){
     assert!(board.legal_moves().is_empty());
     assert_eq!(GameResult::WhiteWin, board.result());
 }
+
+
 
 #[test]
 fn draw(){

@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ChessMove {
     pub start_pos: (usize, usize),
     pub end_pos: (usize, usize),
@@ -24,6 +24,19 @@ impl ChessMove {
         let end_x = indices.get(2)?;
         let end_y = indices.get(3)?;
         Some(ChessMove {start_pos: (*start_x, *start_y), end_pos: (*end_x, *end_y)})
+    }
+
+    pub fn get_start_x(&self) -> usize {
+        return self.start_pos.0;
+    }
+    pub fn get_start_y(&self) -> usize {
+        return self.start_pos.1;
+    }
+    pub fn get_end_x(&self) -> usize {
+        return self.end_pos.0;
+    }
+    pub fn get_end_y(&self) -> usize {
+        return self.end_pos.1;
     }
 }
 
