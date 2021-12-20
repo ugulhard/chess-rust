@@ -5,7 +5,7 @@ use std::cmp;
 
 use crate::chess::{chess_move::{ChessMove, self}, board::Board, evaluation::evaluate, color::Color, game_result::GameResult};
 
-struct minimax_ai {
+pub struct minimax_ai {
     max_depth: i32
 }
 

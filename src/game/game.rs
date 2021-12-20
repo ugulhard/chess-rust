@@ -5,7 +5,7 @@ use std::fmt;
 pub struct Game {
     moves: Vec<ChessMove>,
     result: GameResult,
-    board: Board
+    pub board: Board
 }
 
 impl Game {

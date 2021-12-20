@@ -1,1 +1,1 @@
-mod ai;
+pub(crate) mod ai;
