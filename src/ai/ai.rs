@@ -1,58 +1,62 @@
 
 mod ai;
 use core::panic;
+use std::f64::{MIN, MAX};
 use log::info;
-
-use crate::chess::{chess_move::{ChessMove, self}, board::Board, evaluation::evaluate, color::Color, game_result::GameResult};
+use crate::chess::{chess_move::ChessMove, board::Board, evaluation::evaluate, color::Color, game_result::GameResult};
 
 pub struct MinimaxAi {
-    max_depth: i32
+    max_depth: i32,
+    color: Color
 }
 
 impl MinimaxAi {
-    pub fn new(max_depth: i32) -> MinimaxAi {
+    pub fn new(color: Color, max_depth: i32) -> MinimaxAi {
         if max_depth <= 0 {
             panic!("Need to calculate at least one move deep");
         }
-        MinimaxAi{max_depth}
+        if color == Color::Empty {
+            panic!("You can't play as an empty color");
+        }
+        MinimaxAi{color, max_depth}
     }
 
-    pub fn find_best_move(&self, board: &Board, color: Color) -> ChessMove {
+    pub fn find_best_move(&self, board: &Board) -> ChessMove {
         let mut chess_moves = board.legal_moves();
         let mut best_move = chess_moves.pop().expect("No legal moves, the game should be over");
-        let mut best_value = evaluate(&board.make_move_with_struct(best_move)) as f64;
+        let mut best_value = self.evaluate(&board.make_move_with_struct(best_move)) as f64;
         for chess_move in chess_moves {
             let new_board = board.make_move_with_struct(chess_move);
-            let move_value = MinimaxAi::minimax(&new_board, self.max_depth -1, false, color);
-            if MinimaxAi::move_maximizes_for_color(color, best_value, move_value) {
+            let move_value = self.minimax(&new_board, self.max_depth -1, false);
+            if self.move_maximizes(best_value, move_value) {
                 best_value = move_value;
                 best_move = chess_move;
             }
         }
-
+        info!("Picked the move {} with value {}", best_move, best_value);
         best_move
 
     }
 
-    fn minimax(board: &Board, depth: i32, maximizing_player: bool, color_to_maximize: Color) -> f64 {
+    fn minimax(&self, board: &Board, depth: i32, maximizing_player: bool) -> f64 {
         if depth == 0 || board.result() != GameResult::Ongoing {
-            return evaluate(board) as f64;
+            return self.evaluate(board) + depth as f64;
         }
-        let mut value = -10000.0;
+        let mut value = MIN;
         if maximizing_player {
             for chess_move in board.legal_moves(){
                 let new_board = board.make_move_with_struct(chess_move);
-                let node_value = MinimaxAi::minimax(&new_board, depth -1, false, color_to_maximize);
-                if MinimaxAi::move_maximizes_for_color(color_to_maximize, value, node_value) {
+                let node_value = self.minimax(&new_board, depth -1, false);
+                if self.move_maximizes(value, node_value) {
                     value = node_value;
                 }
             }
         } else {
-            value = -value;
+            value = MAX;
             for chess_move in board.legal_moves(){
                 let new_board = board.make_move_with_struct(chess_move);
-                let node_value = MinimaxAi::minimax(&new_board, depth -1, false, color_to_maximize);
-                if MinimaxAi::move_minimizes_for_color(color_to_maximize, value, node_value) {
+                let node_value = self.minimax(&new_board, depth -1, true);
+                if self.move_minimizes(value, node_value) {
                     value = node_value;
                 }
             }
@@ -60,43 +64,48 @@ impl MinimaxAi {
         value
     }
 
-    fn move_maximizes_for_color(color_to_maximize: Color, best_value: f64, new_value: f64) -> bool{
-        match color_to_maximize {
-            Color::White => best_value - new_value < 0.001,
-            Color::Black => best_value - new_value > 0.001,
-            Color::Empty => panic!("Can't maximize for empty color")
+    fn evaluate(&self, board: &Board) -> f64 {
+        match self.color {
+            Color::White => evaluate(board) as f64,
+            Color::Black => -evaluate(board) as f64,
+            _ => panic!("Can only evaluate for players")
         }
     }
 
-    fn move_minimizes_for_color(color_to_minimize: Color, best_value: f64, new_value: f64) -> bool{
-        match color_to_minimize {
-            Color::White => best_value - new_value > 0.001,
-            Color::Black => best_value - new_value < 0.001,
-            Color::Empty => panic!("Can't maximize for empty color")
-        }
+    fn move_maximizes(&self, best_value: f64, new_value: f64) -> bool{
+        best_value - new_value < 0.00001
+           
+    }
+
+    fn move_minimizes(&self, best_value: f64, new_value: f64) -> bool{
+        best_value - new_value > 0.00001
     }
 }
 mod tests {
-    use crate::{chess::{tile::Tile, board::Board, piece::Piece, color::Color, chess_move::ChessMove}, ai::ai::MinimaxAi};
+    use crate::{chess::{tile::Tile, board::Board, piece::Piece, color::Color, chess_move::ChessMove, game_result::GameResult}, ai::ai::MinimaxAi};
     #[test]
     #[should_panic]
     fn create_ai_with_depth_0_panics(){
-        let ai = MinimaxAi::new(0);
+        let _ai = MinimaxAi::new(Color::Black, 0);
+
+    }
+    #[test]
+    #[should_panic]
+    fn create_ai_with_empty_color_panics(){
+        let _ai = MinimaxAi::new(Color::Empty, 1);
 
     }
     #[test]
     fn maximize(){
-        assert!(!MinimaxAi::move_maximizes_for_color(Color::White, 5.0, 0.0));
-        assert!(MinimaxAi::move_maximizes_for_color(Color::White, 0.0, 5.0));
-        assert!(MinimaxAi::move_maximizes_for_color(Color::Black, 5.0, 0.0));
-        assert!(!MinimaxAi::move_maximizes_for_color(Color::Black, 0.0, 5.0));
+        let ai = MinimaxAi::new(Color::White, 1);
+        assert!(!ai.move_maximizes(5.0, 0.0));
+        assert!(ai.move_maximizes(0.0, 5.0));
     }
     #[test]
     fn minimize(){
-        assert!(MinimaxAi::move_minimizes_for_color(Color::White, 5.0, 0.0));
-        assert!(!MinimaxAi::move_minimizes_for_color(Color::White, 0.0, 5.0));
-        assert!(!MinimaxAi::move_minimizes_for_color(Color::Black, 5.0, 0.0));
-        assert!(MinimaxAi::move_minimizes_for_color(Color::Black, 0.0, 5.0));
+        let ai = MinimaxAi::new(Color::White, 1);
+        assert!(ai.move_minimizes(5.0, 0.0));
+        assert!(!ai.move_minimizes(0.0, 5.0));
     }
     #[test]
     fn white_win(){
@@ -104,8 +113,8 @@ mod tests {
         board.tiles[0][0] = Tile{piece: Piece::King, color: Color::Black};
         board.tiles[2][2] = Tile{piece: Piece::King, color: Color::White};
         board.tiles[2][1] = Tile{piece: Piece::Queen, color: Color::White};
-        let ai = MinimaxAi::new(3);
-        let best_move = ai.find_best_move(&board, Color::White);
+        let ai = MinimaxAi::new(Color::White,3);
+        let best_move = ai.find_best_move(&board);
         let expected_move = ChessMove::from("2 1 1 1".to_string()).unwrap();
         assert_eq!(best_move, expected_move);
     }
@@ -116,8 +125,8 @@ mod tests {
         board.tiles[2][2] = Tile{piece: Piece::King, color: Color::Black};
         board.tiles[2][1] = Tile{piece: Piece::Queen, color: Color::Black};
         board = board.make_move(1, 0, 0, 0);
-        let ai = MinimaxAi::new(3);
-        let best_move = ai.find_best_move(&board, Color::Black);
+        let ai = MinimaxAi::new(Color::Black, 3);
+        let best_move = ai.find_best_move(&board);
         let expected_move = ChessMove::from("2 1 1 1".to_string()).unwrap();
         assert_eq!(best_move, expected_move);
     }
@@ -127,10 +136,27 @@ mod tests {
         board.tiles[1][0] = Tile{piece: Piece::King, color: Color::White};
         board.tiles[7][7] = Tile{piece: Piece::King, color: Color::Black};
         board.tiles[2][1] = Tile{piece: Piece::Queen, color: Color::Black};
-        let ai = MinimaxAi::new(3);
-        let best_move = ai.find_best_move(&board, Color::White);
+        let ai = MinimaxAi::new(Color::White, 3);
+        let best_move = ai.find_best_move(&board);
         let expected_move = ChessMove::from("1 0 2 1".to_string()).unwrap();
         assert_eq!(best_move, expected_move);
     }
+
+    #[test]
+fn should_prevent_scholars_mate(){
+    let mut board = Board::new();
+    board = board.make_move(4, 1, 5, 2);
+    board = board.make_move(1, 7, 0, 5);
+    board = board.make_move(3, 0, 5, 2);
+    board = board.make_move(0, 5, 1, 7);
+    board = board.make_move(5, 0, 2, 3);
+    let ai = MinimaxAi::new(Color::Black, 3);
+    let best_move = ai.find_best_move(&board);
+    board = board.make_move_with_struct(best_move);
+    if board.legal_move(5, 2, 5, 6) {
+        board = board.make_move(5, 2, 5, 6);
+        assert_eq!(GameResult::Ongoing, board.result());
+    }
+}
 
 }

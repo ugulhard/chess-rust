@@ -14,8 +14,9 @@ use crate::ai::ai::MinimaxAi;
 
 
 fn main() {
+    env_logger::init();
     let mut game = Game::new();
-    let ai = MinimaxAi::new(9);
+    let ai = MinimaxAi::new(Color::Black,7);
     loop {
         let mut input=String::new();
         println!("Please enter the next move: ");
@@ -26,7 +27,6 @@ fn main() {
         match parsed_chess_move {
             None => println!("Incorrect move"),
             Some(chess_move) => make_move(&mut game, &chess_move, &ai)
-
         }
     
         print!("{}", game);
@@ -37,6 +37,6 @@ fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &MinimaxAi) {
     if game.legal_move(chess_move) {
         game.make_move(chess_move);
     }
-    let best_move = ai.find_best_move(&game.board, Color::Black);
+    let best_move = ai.find_best_move(&game.board);
     game.make_move(&best_move)
 }

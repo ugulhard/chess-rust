@@ -1,3 +1,5 @@
+use std::fmt::{Display, self};
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ChessMove {
     pub start_pos: (usize, usize),
@@ -50,6 +52,12 @@ fn parse_chess_move(move_string: &str) -> Option<usize> {
 
 fn valid_index(index: usize) -> bool {
     index <= 7
+}
+
+impl fmt::Display for ChessMove {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} {} to {} {}", self.get_start_x(), self.get_start_y(), self.get_end_x(), self.get_end_y())
+    }
 }
 
 #[test]
