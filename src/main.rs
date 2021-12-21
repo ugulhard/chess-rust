@@ -17,7 +17,7 @@ use crate::ai::ai::Ai;
 fn main() {
     env_logger::init();
     let mut game = Game::new();
-    let ai = MinimaxAi::new(Color::Black,6);
+    let mut ai = MinimaxAi::new(Color::Black,6);
     loop {
         let mut input=String::new();
         println!("Please enter the next move: ");
@@ -27,14 +27,14 @@ fn main() {
         let parsed_chess_move = ChessMove::from(chess_move_string);
         match parsed_chess_move {
             None => println!("Incorrect move"),
-            Some(chess_move) => make_move(&mut game, &chess_move, &ai)
+            Some(chess_move) => make_move(&mut game, &chess_move, &mut ai)
         }
     
         print!("{}", game);
     }
 }
 
-fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &MinimaxAi) {
+fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &mut MinimaxAi) {
     if game.legal_move(chess_move) {
         game.make_move(chess_move);
     }
