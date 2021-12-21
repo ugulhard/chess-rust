@@ -1,23 +1,20 @@
-mod game;
-mod chess;
-pub mod ai;
-
 use std::io::Write;
 use std::io::stdout;
 use std::io::stdin;
 
-use chess::color::Color;
-
-use crate::game::game::Game;
-use crate::chess::chess_move::ChessMove;
-use crate::ai::minimax_ai::MinimaxAi;
-use crate::ai::ai::Ai;
+use chess_rust::chess::chess_move::ChessMove;
+use chess_rust::ai::alpha_beta_ai::AlphaBetaAi;
+use chess_rust::chess::color::Color;
+use chess_rust::game::game::Game;
+use chess_rust::ai::ai::Ai;
 
 
 fn main() {
     env_logger::init();
     let mut game = Game::new();
-    let mut ai = MinimaxAi::new(Color::Black,6);
+    let alpha = &mut f64::MIN.clone();
+    let beta = &mut f64::MAX.clone();
+    let mut ai = AlphaBetaAi::new(Color::Black,9, alpha, beta);
     loop {
         let mut input=String::new();
         println!("Please enter the next move: ");
@@ -34,7 +31,7 @@ fn main() {
     }
 }
 
-fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &mut MinimaxAi) {
+fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &mut Ai) {
     if game.legal_move(chess_move) {
         game.make_move(chess_move);
     }

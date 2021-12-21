@@ -1,5 +1,5 @@
 pub mod board;
-pub(crate) mod color;
+pub mod color;
 pub mod chess_move;
 pub(crate) mod piece;
 pub(crate) mod tile;
