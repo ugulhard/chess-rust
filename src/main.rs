@@ -10,13 +10,14 @@ use chess::color::Color;
 
 use crate::game::game::Game;
 use crate::chess::chess_move::ChessMove;
-use crate::ai::ai::MinimaxAi;
+use crate::ai::minimax_ai::MinimaxAi;
+use crate::ai::ai::Ai;
 
 
 fn main() {
     env_logger::init();
     let mut game = Game::new();
-    let ai = MinimaxAi::new(Color::Black,7);
+    let ai = MinimaxAi::new(Color::Black,6);
     loop {
         let mut input=String::new();
         println!("Please enter the next move: ");

@@ -1,5 +1,6 @@
 
 use core::panic;
+use crate::ai::ai::Ai;
 use std::f64::{MIN, MAX};
 use log::info;
 use crate::chess::{chess_move::ChessMove, board::Board, evaluation::evaluate, color::Color, game_result::GameResult};
@@ -18,24 +19,6 @@ impl MinimaxAi {
             panic!("You can't play as an empty color");
         }
         MinimaxAi{color, max_depth}
-    }
-
-    pub fn find_best_move(&self, board: &Board) -> ChessMove {
-        let mut chess_moves = board.legal_moves();
-        let mut best_move = chess_moves.pop().expect("No legal moves, the game should be over");
-        let new_board = board.make_move_with_struct(best_move);
-        let mut best_value = self.minimax(&new_board, self.max_depth - 1, false);
-        for chess_move in chess_moves {
-            let new_board = board.make_move_with_struct(chess_move);
-            let move_value = self.minimax(&new_board, self.max_depth -1, false);
-            if self.move_maximizes(best_value, move_value) {
-                best_value = move_value;
-                best_move = chess_move;
-            }
-        }
-        info!("Picked the move {} with value {}", best_move, best_value);
-        best_move
-
     }
 
     fn minimax(&self, board: &Board, depth: i32, maximizing_player: bool) -> f64 {
@@ -82,8 +65,29 @@ impl MinimaxAi {
         worst_value - new_value > 0.00001
     }
 }
+
+impl Ai for MinimaxAi {
+    fn find_best_move(&self, board: &Board) -> ChessMove {
+        let mut chess_moves = board.legal_moves();
+        let mut best_move = chess_moves.pop().expect("No legal moves, the game should be over");
+        let new_board = board.make_move_with_struct(best_move);
+        let mut best_value = self.minimax(&new_board, self.max_depth - 1, false);
+        for chess_move in chess_moves {
+            let new_board = board.make_move_with_struct(chess_move);
+            let move_value = self.minimax(&new_board, self.max_depth -1, false);
+            if self.move_maximizes(best_value, move_value) {
+                best_value = move_value;
+                best_move = chess_move;
+            }
+        }
+        info!("Picked the move {} with value {}", best_move, best_value);
+        best_move
+
+    }
+}
+
 mod tests {
-    use crate::{chess::{tile::Tile, board::Board, piece::Piece, color::Color, chess_move::ChessMove, game_result::GameResult}, ai::minimax_ai::MinimaxAi};
+    use crate::{chess::{tile::Tile, board::Board, piece::Piece, color::Color, chess_move::ChessMove, game_result::GameResult}, ai::{minimax_ai::MinimaxAi, ai::Ai}};
     #[test]
     #[should_panic]
     fn create_ai_with_depth_0_panics(){
