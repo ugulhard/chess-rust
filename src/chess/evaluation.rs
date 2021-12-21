@@ -85,7 +85,6 @@ fn stalemate(){
     board.tiles[0][0] = Tile{piece: Piece::King, color: Color::White};
     board.tiles[0][2] = Tile{piece: Piece::King, color: Color::Black};
     board.tiles[2][1] = Tile{piece: Piece::Queen, color: Color::Black};
-    assert!(evaluate(&board) < 50);
     assert_eq!(0, evaluate(&board));
 }
 #[test]
