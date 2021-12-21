@@ -19,10 +19,7 @@ pub fn evaluate(board: &Board) -> i32 {
 }
 
 fn decisive_board(board: &Board) -> bool {
-    match board.result() {
-        GameResult::Ongoing => false,
-        _ => true
-    }
+    !matches!(board.result(), GameResult::Ongoing)
 }
 
 fn get_score_for_decisive_board(board: &Board) -> i32 {
