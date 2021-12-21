@@ -1,5 +1,4 @@
 
-mod ai;
 use core::panic;
 use std::f64::{MIN, MAX};
 use log::info;
@@ -24,7 +23,8 @@ impl MinimaxAi {
     pub fn find_best_move(&self, board: &Board) -> ChessMove {
         let mut chess_moves = board.legal_moves();
         let mut best_move = chess_moves.pop().expect("No legal moves, the game should be over");
-        let mut best_value = self.evaluate(&board.make_move_with_struct(best_move)) as f64;
+        let new_board = board.make_move_with_struct(best_move);
+        let mut best_value = self.minimax(&new_board, self.max_depth - 1, false);
         for chess_move in chess_moves {
             let new_board = board.make_move_with_struct(chess_move);
             let move_value = self.minimax(&new_board, self.max_depth -1, false);
@@ -42,8 +42,8 @@ impl MinimaxAi {
         if depth == 0 || board.result() != GameResult::Ongoing {
             return self.evaluate(board) + depth as f64;
         }
-        let mut value = MIN;
         if maximizing_player {
+            let mut value = MIN;
             for chess_move in board.legal_moves(){
                 let new_board = board.make_move_with_struct(chess_move);
                 let node_value = self.minimax(&new_board, depth -1, false);
@@ -51,8 +51,9 @@ impl MinimaxAi {
                     value = node_value;
                 }
             }
+            value
         } else {
-            value = MAX;
+            let mut value = MAX;
             for chess_move in board.legal_moves(){
                 let new_board = board.make_move_with_struct(chess_move);
                 let node_value = self.minimax(&new_board, depth -1, true);
@@ -60,8 +61,8 @@ impl MinimaxAi {
                     value = node_value;
                 }
             }
+            value
         }
-        value
     }
 
     fn evaluate(&self, board: &Board) -> f64 {
@@ -77,8 +78,8 @@ impl MinimaxAi {
            
     }
 
-    fn move_minimizes(&self, best_value: f64, new_value: f64) -> bool{
-        best_value - new_value > 0.00001
+    fn move_minimizes(&self, worst_value: f64, new_value: f64) -> bool{
+        worst_value - new_value > 0.00001
     }
 }
 mod tests {
@@ -100,12 +101,17 @@ mod tests {
         let ai = MinimaxAi::new(Color::White, 1);
         assert!(!ai.move_maximizes(5.0, 0.0));
         assert!(ai.move_maximizes(0.0, 5.0));
+        assert!(!ai.move_maximizes(0.0, -5.0));
+        assert!(ai.move_maximizes(-5.0, 0.0));
     }
     #[test]
     fn minimize(){
         let ai = MinimaxAi::new(Color::White, 1);
         assert!(ai.move_minimizes(5.0, 0.0));
         assert!(!ai.move_minimizes(0.0, 5.0));
+        assert!(ai.move_minimizes(-5.0, -10.0));
+        assert!(!ai.move_minimizes(-5.0, 0.0));
+
     }
     #[test]
     fn white_win(){
@@ -143,20 +149,38 @@ mod tests {
     }
 
     #[test]
-fn should_prevent_scholars_mate(){
-    let mut board = Board::new();
-    board = board.make_move(4, 1, 5, 2);
-    board = board.make_move(1, 7, 0, 5);
-    board = board.make_move(3, 0, 5, 2);
-    board = board.make_move(0, 5, 1, 7);
-    board = board.make_move(5, 0, 2, 3);
-    let ai = MinimaxAi::new(Color::Black, 3);
-    let best_move = ai.find_best_move(&board);
-    board = board.make_move_with_struct(best_move);
-    if board.legal_move(5, 2, 5, 6) {
-        board = board.make_move(5, 2, 5, 6);
-        assert_eq!(GameResult::Ongoing, board.result());
+    fn should_prevent_scholars_mate_depth_3(){
+        let mut board = Board::new();
+        board = board.make_move(4, 1, 5, 2);
+        board = board.make_move(1, 7, 0, 5);
+        board = board.make_move(3, 0, 5, 2);
+        board = board.make_move(0, 5, 1, 7);
+        board = board.make_move(5, 0, 2, 3);
+        let ai = MinimaxAi::new(Color::Black, 3);
+        let best_move = ai.find_best_move(&board);
+        board = board.make_move_with_struct(best_move);
+        if board.legal_move(5, 2, 5, 6) {
+            board = board.make_move(5, 2, 5, 6);
+            assert_eq!(GameResult::Ongoing, board.result());
+        }
     }
-}
+
+    #[test]
+    fn should_prevent_scholars_mate_depth_2(){
+        let mut board = Board::new();
+        board = board.make_move(4, 1, 5, 2);
+        board = board.make_move(1, 7, 0, 5);
+        board = board.make_move(3, 0, 5, 2);
+        board = board.make_move(0, 5, 1, 7);
+        board = board.make_move(5, 0, 2, 3);
+        let ai = MinimaxAi::new(Color::Black, 2);
+        let best_move = ai.find_best_move(&board);
+        board = board.make_move_with_struct(best_move);
+        let legal_moves = board.legal_moves();
+        if board.legal_move(5, 2, 5, 6) {
+            board = board.make_move(5, 2, 5, 6);
+            assert_eq!(GameResult::Ongoing, board.result());
+        }
+    }
 
 }
