@@ -29,16 +29,16 @@ impl ChessMove {
     }
 
     pub fn get_start_x(&self) -> usize {
-        return self.start_pos.0;
+        self.start_pos.0
     }
     pub fn get_start_y(&self) -> usize {
-        return self.start_pos.1;
+        self.start_pos.1
     }
     pub fn get_end_x(&self) -> usize {
-        return self.end_pos.0;
+        self.end_pos.0
     }
     pub fn get_end_y(&self) -> usize {
-        return self.end_pos.1;
+        self.end_pos.1
     }
 }
 
