@@ -10,12 +10,12 @@ use chess::color::Color;
 
 use crate::game::game::Game;
 use crate::chess::chess_move::ChessMove;
-use crate::ai::ai::minimax_ai;
+use crate::ai::ai::MinimaxAi;
 
 
 fn main() {
     let mut game = Game::new();
-    let ai = minimax_ai::new(2);
+    let ai = MinimaxAi::new(9);
     loop {
         let mut input=String::new();
         println!("Please enter the next move: ");
@@ -33,7 +33,7 @@ fn main() {
     }
 }
 
-fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &minimax_ai) {
+fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &MinimaxAi) {
     if game.legal_move(chess_move) {
         game.make_move(chess_move);
     }
