@@ -1,1 +1,1 @@
-pub(crate) mod ai;
+pub(crate) mod minimax_ai;

@@ -83,7 +83,7 @@ impl MinimaxAi {
     }
 }
 mod tests {
-    use crate::{chess::{tile::Tile, board::Board, piece::Piece, color::Color, chess_move::ChessMove, game_result::GameResult}, ai::ai::MinimaxAi};
+    use crate::{chess::{tile::Tile, board::Board, piece::Piece, color::Color, chess_move::ChessMove, game_result::GameResult}, ai::minimax_ai::MinimaxAi};
     #[test]
     #[should_panic]
     fn create_ai_with_depth_0_panics(){
