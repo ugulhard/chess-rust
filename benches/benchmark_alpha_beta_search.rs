@@ -7,7 +7,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     let board = Board::new();
     let alpha =&mut f64::MIN.clone();
     let beta =&mut f64::MAX.clone();
-    let ai = &mut AlphaBetaAi::new(Color::White, 7, alpha, beta);
+    let ai = &mut AlphaBetaAi::new(Color::White, 7);
     c.bench_function("Move generation", |b| b.iter(|| board.legal_moves()));
 }
 

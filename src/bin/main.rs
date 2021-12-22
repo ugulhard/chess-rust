@@ -12,9 +12,7 @@ use chess_rust::ai::ai::Ai;
 fn main() {
     env_logger::init();
     let mut game = Game::new();
-    let alpha = &mut f64::MIN.clone();
-    let beta = &mut f64::MAX.clone();
-    let mut ai = AlphaBetaAi::new(Color::Black,9, alpha, beta);
+    let mut ai = AlphaBetaAi::new(Color::Black,9);
     loop {
         let mut input=String::new();
         println!("Please enter the next move: ");
@@ -31,7 +29,7 @@ fn main() {
     }
 }
 
-fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &mut Ai) {
+fn make_move(game: &mut Game, chess_move: &ChessMove, ai: &mut dyn Ai) {
     if game.legal_move(chess_move) {
         game.make_move(chess_move);
     }
