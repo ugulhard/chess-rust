@@ -15,7 +15,8 @@ impl MoveGenerator<'_> {
     pub fn possible_moves(&self) -> Vec<ChessMove> {
         let mut possible_moves = Vec::<ChessMove>::new();
         for (start_x, start_y) in self.board.all_squares() {
-            for (end_x, end_y) in self.board.all_squares() {
+            let piece = self.board.tiles[start_x][start_y].piece;
+            for (end_x, end_y) in piece.squares_that_fit_move_pattern(start_x, start_y) {
                 if self.piece_can_reach(start_x, start_y, end_x, end_y) {
                     possible_moves.push(ChessMove{start_pos: (start_x, start_y), end_pos : (end_x, end_y)});
                 }
