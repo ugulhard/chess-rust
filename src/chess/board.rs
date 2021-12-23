@@ -137,8 +137,6 @@ impl fmt::Display for Board {
     }
 }
 
-mod tests {
-    use super::*;
 #[test]
 fn pawn_move_one_step() {
     let board = Board::new();
@@ -467,7 +465,5 @@ fn draw(){
     board.tiles[0][5] = Tile{piece: Piece::King, color: Color::Black};
     board.tiles[2][1] = Tile{piece: Piece::Queen, color: Color::Black};
     assert_eq!(GameResult::Draw, board.result());
-}
-
 }
 
